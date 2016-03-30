@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+
+  <html class="light">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>Android-仿QQ、微信聊天界面的实现 | Tangent</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Android,ListView,Adapter," />
+  
+
+  <meta name="description" content="前言
+上图为腾讯QQ手机端的聊天界面截图，现在很多即时通讯App在聊天界面上都与之相似，由底下的编辑栏以及上方的消息展示界面组成。而上方的消息展示界面主要的组成部分是用户的头像、消息发送的时间以及显示聊天内容的“文字气泡”。本文主要讲解消息展示界面的实现。
+在Android中，这类消息展示界面是通过ListView控件去构建的。很多时候我在开发时用到的ListView其中每一个item的UI布局都">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android-仿QQ、微信聊天界面的实现">
+<meta property="og:url" content="http://yoursite.com/2016/03/30/Android-仿QQ、微信聊天界面的实现/index.html">
+<meta property="og:site_name" content="Tangent">
+<meta property="og:description" content="前言
+上图为腾讯QQ手机端的聊天界面截图，现在很多即时通讯App在聊天界面上都与之相似，由底下的编辑栏以及上方的消息展示界面组成。而上方的消息展示界面主要的组成部分是用户的头像、消息发送的时间以及显示聊天内容的“文字气泡”。本文主要讲解消息展示界面的实现。
+在Android中，这类消息展示界面是通过ListView控件去构建的。很多时候我在开发时用到的ListView其中每一个item的UI布局都">
+<meta property="og:image" content="http://img.blog.csdn.net/20150921203338079?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:updated_time" content="2016-03-30T08:28:39.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android-仿QQ、微信聊天界面的实现">
+<meta name="twitter:description" content="前言
+上图为腾讯QQ手机端的聊天界面截图，现在很多即时通讯App在聊天界面上都与之相似，由底下的编辑栏以及上方的消息展示界面组成。而上方的消息展示界面主要的组成部分是用户的头像、消息发送的时间以及显示聊天内容的“文字气泡”。本文主要讲解消息展示界面的实现。
+在Android中，这类消息展示界面是通过ListView控件去构建的。很多时候我在开发时用到的ListView其中每一个item的UI布局都">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20150921203338079?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  
+  <link href="/css/styles.css?v=5f7f1d39" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?0e70ef65f0d3c8a1e0d427edc322fc77";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+</head>
+
+<body>
+
+  
+    <a href="#modal-one" class="toolbox-mobile">盒子</a>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现"><span class="toc-text">实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#注意点"><span class="toc-text">注意点</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-Android-仿QQ、微信聊天界面的实现" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">Android-仿QQ、微信聊天界面的实现</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2016.03.30</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>Tangent 汤骏炜</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/Android/">Android</a>
+  </span>
+
+
+
+      
+        <span>
+          <i class="icon-comment"></i>
+          <a href="http://tangent.gift/2016/03/30/Android-仿QQ、微信聊天界面的实现/#disqus_thread"></a>
+        </span>
+      
+
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="http://img.blog.csdn.net/20150921203338079?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>上图为腾讯QQ手机端的聊天界面截图，现在很多即时通讯App在聊天界面上都与之相似，由底下的编辑栏以及上方的消息展示界面组成。而上方的消息展示界面主要的组成部分是用户的头像、消息发送的时间以及显示聊天内容的“文字气泡”。本文主要讲解消息展示界面的实现。</p>
+<p>在Android中，这类消息展示界面是通过ListView控件去构建的。很多时候我在开发时用到的ListView其中每一个item的UI布局都是一样的，唯一的不同点只是里面显示的数据的不同，而在这类型的ListView中，item的类型则有两种，第一种是要展示本人上传的消息，位于屏幕的右方，而另一种是展示对方上传的信息，位于屏幕的左方；另外，在ListView的Adapter中进行item复用时也要考虑这两种类型如何做到不会错乱地复用。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>要实现这种效果其实很简单，只需在Adapter上下点功夫就行了：</p>
+<ol>
+<li><p>首先定义信息的实体类，其中有信息的类型（本人发的，对方发的）、信息的内容还有发送此信息的时间：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">/** </span><br><span class="line"> *信息实体 </span><br><span class="line"> */</span>  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Message</span> </span>&#123;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">int</span> TYPE_SEND = <span class="number">0</span>; <span class="comment">//本人发的消息  </span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">int</span> TYPE_RESPONSE = <span class="number">1</span>; <span class="comment">//对方发的消息  </span></span><br><span class="line">  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> type;  </span><br><span class="line">    <span class="keyword">private</span> String content;  </span><br><span class="line">    <span class="keyword">private</span> String time;  </span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Message</span><span class="params">(<span class="keyword">int</span> type,String content)</span>  </span><br><span class="line">    </span>&#123;  </span><br><span class="line">        <span class="keyword">this</span>.type = type;  </span><br><span class="line">        <span class="keyword">this</span>.content = content;  </span><br><span class="line">        <span class="keyword">this</span>.time = DateFormat.getTimeInstance().format(<span class="keyword">new</span> Date(System.currentTimeMillis()));  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getType</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> type;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getContent</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> content;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getTime</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> time;  </span><br><span class="line">    &#125;  </span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>现在就是Adapter的编写了，在这里要实现聊天信息展示的效果，需重写Adapter中的两个方法，分别是 getViewTypeCount()和getItemViewType()，前者是需要返回item类型的数量，后者是根据参数中的item位置值返回此item的类型，以下是Adapter的代码实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">ContentAdapter</span> <span class="keyword">extends</span> <span class="title">BaseAdapter</span>  </span><br><span class="line">   </span>&#123;  </span><br><span class="line">       <span class="keyword">private</span> LayoutInflater inflater;  </span><br><span class="line">       <span class="keyword">private</span> List&lt;Message&gt; messages;  </span><br><span class="line"> </span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="title">ContentAdapter</span><span class="params">(Context context,List&lt;Message&gt; messages)</span>  </span><br><span class="line">       </span>&#123;  </span><br><span class="line">           <span class="keyword">this</span>.inflater = LayoutInflater.from(context);  </span><br><span class="line">           <span class="keyword">this</span>.messages = messages;  </span><br><span class="line">       &#125;  </span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">       <span class="comment">/** </span><br><span class="line">        * 要想做到聊天的样子，需要重写两个这样的关于item view 类型的方法 </span><br><span class="line">        * <span class="doctag">@return</span> </span><br><span class="line">        */</span>  </span><br><span class="line">       <span class="meta">@Override</span>  </span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getViewTypeCount</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">           <span class="keyword">return</span> <span class="number">2</span>; <span class="comment">//因为有两个类型，所以返回2  </span></span><br><span class="line">       &#125;  </span><br><span class="line"> </span><br><span class="line">       <span class="meta">@Override</span>  </span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getItemViewType</span><span class="params">(<span class="keyword">int</span> position)</span> </span>&#123;  </span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">this</span>.messages.get(position).getType();   <span class="comment">//返回指定位置的item的message的TYPE  </span></span><br><span class="line">       &#125;  </span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">       <span class="meta">@Override</span>  </span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCount</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">this</span>.messages.size();  </span><br><span class="line">       &#125;  </span><br><span class="line"> </span><br><span class="line">       <span class="meta">@Override</span>  </span><br><span class="line">       <span class="function"><span class="keyword">public</span> Object <span class="title">getItem</span><span class="params">(<span class="keyword">int</span> position)</span> </span>&#123;  </span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">null</span>;  </span><br><span class="line">       &#125;  </span><br><span class="line"> </span><br><span class="line">       <span class="meta">@Override</span>  </span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">getItemId</span><span class="params">(<span class="keyword">int</span> position)</span> </span>&#123;  </span><br><span class="line">           <span class="keyword">return</span> <span class="number">0</span>;  </span><br><span class="line">       &#125;  </span><br><span class="line"> </span><br><span class="line">       <span class="meta">@Override</span>  </span><br><span class="line">       <span class="function"><span class="keyword">public</span> View <span class="title">getView</span><span class="params">(<span class="keyword">int</span> position, View convertView, ViewGroup parent)</span> </span>&#123;  </span><br><span class="line">           Message message = <span class="keyword">this</span>.messages.get(position);  </span><br><span class="line">           <span class="keyword">if</span>(convertView == <span class="keyword">null</span>)  </span><br><span class="line">           &#123;  </span><br><span class="line">               <span class="comment">/*在这里首先判断message的类型，适配不同的布局*/</span>  </span><br><span class="line">               <span class="keyword">if</span>(message.getType() == Message.TYPE_SEND)  </span><br><span class="line">               &#123;  </span><br><span class="line">                   convertView = <span class="keyword">this</span>.inflater.inflate(R.layout.layout_item_send,parent,<span class="keyword">false</span>);  </span><br><span class="line">               &#125;  </span><br><span class="line">               <span class="keyword">else</span> <span class="keyword">if</span>(message.getType() == Message.TYPE_RESPONSE)  </span><br><span class="line">               &#123;  </span><br><span class="line">                   convertView = <span class="keyword">this</span>.inflater.inflate(R.layout.layout_item_respon,parent,<span class="keyword">false</span>);  </span><br><span class="line">               &#125;  </span><br><span class="line"> </span><br><span class="line">               MyViewHolder viewHolder = <span class="keyword">new</span> MyViewHolder(convertView);  </span><br><span class="line">               convertView.setTag(viewHolder);  </span><br><span class="line">           &#125;  </span><br><span class="line"> </span><br><span class="line">           MyViewHolder viewHolder = (MyViewHolder) convertView.getTag();  </span><br><span class="line">           viewHolder.setContent(message.getContent());  </span><br><span class="line">           viewHolder.setTime(message.getTime());  </span><br><span class="line">           <span class="keyword">return</span> convertView;  </span><br><span class="line">       &#125;  </span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>这样的话就能实现这种一个ListView多类item的效果了。</p>
+<h2 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h2><p>有一点值得注意的是，一开始我观察到Adapter的getView方法中当convertView为null时才去根据message类型适配不同的布局，而当convertView不为空时是直接返回convertView的，所以当时在想这样的话不就有可能当我发送一条消息的时候，刚好ListView上方显示对方消息的item移出ListView成为convertView，而Adapter为了创建一个item装有我刚刚发的消息，就会用上这个convertView，从而造成了这个item布局是对方消息类型的，而消息内容却是本人发送的这种bug的出现。但是，经过我的测试，这个ListView并没有出现这种bug。在查阅一些资料后，我终于知道了其中的原因,这里是<a href="http://www.aiuxian.com/article/p-117524.html" target="_blank" rel="external">资料的链接</a>。<br>以下是资料原文的部分：</p>
+<p><code>在ListView的父类AbsListView中，有一个变量RecycleBin mRecycler，用来存储某一显示项布局对应的视图。实际存储在 ArrayList&lt;View&gt;[] 中，该数组的长度为getViewTypeCount的返回值。RecycleBin 是AbsListView的一个内部类。 
+当ListView执行 setAdapter方法时，mRecycler会重置，getViewTypeCount方法会被调用。         
+        当ListView要显示某一项时，getItemViewType方法被调用，根据返回值在mRecycler搜索得到缓存的视图。这也是为什么getViewTypeCount返回值要比定义的视图类型常量值大的原因，否则会导致数组越界异常。 
+　　 然后调用getView方法，缓存的视图被传递给getView方法的convertView形参（详细可以参考AbsListView的obtainView方法）。 
+        当传递进来的convertView形参为null的话，需要根据该项的视图类型，初始化布局。 
+　 　最后给显示项填充数据。</code></p>
+
+    
+  </div>
+</article>
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal-one" aria-hidden="true">
+  <a href="#close" class="cover" aria-hidden="true"></a>
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <a href="#close" class="btn-close" aria-hidden="true">关闭</a>
+    </div>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/category/"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'Tangentsw';
+    
+    var disqus_url = 'http://yoursite.com/2016/03/30/Android-仿QQ、微信聊天界面的实现/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+
+  <script id="dsq-count-scr" src="//Tangentsw.disqus.com/count.js" async></script>
+
+
+
+    
+
+
+
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?398', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

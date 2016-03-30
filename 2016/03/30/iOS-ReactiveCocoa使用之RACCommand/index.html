@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+
+  <html class="light">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>iOS-ReactiveCocoa使用之RACCommand | Tangent</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="iOS,ReactiveCocoa,RACCommand,MVVM," />
+  
+
+  <meta name="description" content="前言前几天开始研究Cocoa的第三方编程框架ReactiveCocoa，其使用响应式、函数式的编程思想，对于初识者来说较为抽象，从RACSignal到RACCommand，我花了不少时间去搞懂它们如何使用。其中，花费我最多时间去掌握的就是RACCommand，这货虽然刚开始难以理解难以使用，但是，当我初步了解其特性与应用后，我才发现了它是如此的强大。下面就我对RACCommand的理解，来阐述它的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS-ReactiveCocoa使用之RACCommand">
+<meta property="og:url" content="http://yoursite.com/2016/03/30/iOS-ReactiveCocoa使用之RACCommand/index.html">
+<meta property="og:site_name" content="Tangent">
+<meta property="og:description" content="前言前几天开始研究Cocoa的第三方编程框架ReactiveCocoa，其使用响应式、函数式的编程思想，对于初识者来说较为抽象，从RACSignal到RACCommand，我花了不少时间去搞懂它们如何使用。其中，花费我最多时间去掌握的就是RACCommand，这货虽然刚开始难以理解难以使用，但是，当我初步了解其特性与应用后，我才发现了它是如此的强大。下面就我对RACCommand的理解，来阐述它的">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/RACCommand1.png">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/RACCommand2.png">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/RACCommand3.png">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/RACCommand4.png">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/RACCommand5.png">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/RACCommand6.png">
+<meta property="og:updated_time" content="2016-03-30T08:30:41.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS-ReactiveCocoa使用之RACCommand">
+<meta name="twitter:description" content="前言前几天开始研究Cocoa的第三方编程框架ReactiveCocoa，其使用响应式、函数式的编程思想，对于初识者来说较为抽象，从RACSignal到RACCommand，我花了不少时间去搞懂它们如何使用。其中，花费我最多时间去掌握的就是RACCommand，这货虽然刚开始难以理解难以使用，但是，当我初步了解其特性与应用后，我才发现了它是如此的强大。下面就我对RACCommand的理解，来阐述它的">
+<meta name="twitter:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/RACCommand1.png">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  
+  <link href="/css/styles.css?v=5f7f1d39" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?0e70ef65f0d3c8a1e0d427edc322fc77";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+</head>
+
+<body>
+
+  
+    <a href="#modal-one" class="toolbox-mobile">盒子</a>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#初识-RACCommand"><span class="toc-text">初识 RACCommand</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#创建-RACCommand"><span class="toc-text">创建 RACCommand</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#执行-RACCommand"><span class="toc-text">执行 RACCommand</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#订阅-RACCommand"><span class="toc-text">订阅 RACCommand</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#与-RACSubject的区别"><span class="toc-text">与 RACSubject的区别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RACCommand-实战"><span class="toc-text">RACCommand 实战</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#给出的需求："><span class="toc-text">给出的需求：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#码代码："><span class="toc-text">码代码：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#跑起来"><span class="toc-text">跑起来</span></a></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-iOS-ReactiveCocoa使用之RACCommand" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">iOS-ReactiveCocoa使用之RACCommand</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2016.03.30</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>Tangent 汤骏炜</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/iOS/">iOS</a>
+  </span>
+
+
+
+      
+        <span>
+          <i class="icon-comment"></i>
+          <a href="http://tangent.gift/2016/03/30/iOS-ReactiveCocoa使用之RACCommand/#disqus_thread"></a>
+        </span>
+      
+
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前几天开始研究Cocoa的第三方编程框架<code>ReactiveCocoa</code>，其使用响应式、函数式的编程思想，对于初识者来说较为抽象，从<code>RACSignal</code>到<code>RACCommand</code>，我花了不少时间去搞懂它们如何使用。其中，花费我最多时间去掌握的就是<code>RACCommand</code>，这货虽然刚开始难以理解难以使用，但是，当我初步了解其特性与应用后，我才发现了它是如此的强大。<br>下面就我对<code>RACCommand</code>的理解，来阐述它的基本介绍以及相关使用方法。</p>
+<h2 id="初识-RACCommand"><a href="#初识-RACCommand" class="headerlink" title="初识 RACCommand"></a>初识 RACCommand</h2><h3 id="创建-RACCommand"><a href="#创建-RACCommand" class="headerlink" title="创建 RACCommand"></a>创建 RACCommand</h3><p><code>RACCommand</code>的创建有两种形式：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">id</span>)initWithSignalBlock:(RACSignal * (^)(<span class="keyword">id</span> input))signalBlock;  ①</span><br></pre></td></tr></table></figure>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">id</span>)initWithEnabled:(RACSignal *)enabledSignal signalBlock:(RACSignal * (^)(<span class="keyword">id</span> input))signalBlock;  ②</span><br></pre></td></tr></table></figure>
+<p>第一种就是直接通过传进一个用于构建<code>RACSignal</code>的<code>block</code>参数来初始化<code>RACCommand</code>，而<code>block</code>中的参数<code>input</code>为执行command时传入的数据，另外，创建出的signal可在里面完成一些数据操作，如网络请求，本地数据库读写等等，而第二种则另外还需要传进一个能传递<code>BOOL</code>事件的<code>RACSignal</code>，这个signal的作用相当于过滤，当传递的布尔事件为真值时，command能够执行，反之则不行。</p>
+<p>注意: 伴随着command一起构建的signal，记得要在操作完成后发送完成消息以表示其执行完了：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[subscriber sendCompleted];</span><br></pre></td></tr></table></figure>
+<p>否则不能再执行此command。</p>
+<p>UIButton中有属性<code>rac_command</code>用于绑定一个已经创建好的command（其使用在后面讲到），当你使用第二种方式创建command时，button的<code>enable</code>属性会随command的可执行性而改变，意思是当传递布尔事件的信号传递了真值事件，按钮才可使用。另外，当你按下按钮，command开始执行时，按钮的<code>enable</code>被自动设置成了<code>NO</code>，除非command执行完了，怎么判断command执行完成了呢？就是当其伴随的signal发送完成事件的时候（上面提及到）。</p>
+<p>注意: 当button的<code>rac_command</code>已经绑定了某个command，而这个command又是以第二种方式初始化，那么你就不能动态改变button的<code>enable</code>，如:</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">RAC(<span class="keyword">self</span>.button, enable) = someSignal;</span><br></pre></td></tr></table></figure>
+<p>这样子运行起来会报错。（自己曾踩过的坑）</p>
+<h3 id="执行-RACCommand"><a href="#执行-RACCommand" class="headerlink" title="执行 RACCommand"></a>执行 RACCommand</h3><p><code>RACCommand</code>的执行使用下面的这个函数：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (RACSignal *)execute:(<span class="keyword">id</span>)input;</span><br></pre></td></tr></table></figure>
+<p>在上面已经提及到，input会作为创建command时其内部signal的构建block中的参数，用于传递数据。</p>
+<h3 id="订阅-RACCommand"><a href="#订阅-RACCommand" class="headerlink" title="订阅 RACCommand"></a>订阅 RACCommand</h3><p>订阅<code>RACCommand</code>我们可以使用其内部的属性<code>executionSignals</code>返回一个信号，然后对这个信号进行订阅。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[[aCommand executionSignals]</span><br><span class="line">    subscribeNext:^(<span class="keyword">id</span> x) &#123;</span><br><span class="line">    	<span class="built_in">NSLog</span>(<span class="string">@"%@"</span>,x);</span><br><span class="line">    &#125;];</span><br></pre></td></tr></table></figure>
+<p>在订阅的block中，我们打印了传递事件<code>x</code>的描述，最后会发现<code>x</code>原来是一个<code>RACSignal</code>，原因是<code>RACCommand</code>中的<code>executionSignals</code>属性是一个包裹着信号的信号，其包裹着的信号就是我们当初在创建<code>RACCommand</code>时进行构建的信号，所以当我们开始执行<code>RACCommand</code>时，<code>executionSignals</code>信号就会立即发送事件，传递出其包裹的信号，我们可以对这个信号进行订阅：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[[aCommand executionSignals]</span><br><span class="line">    subscribeNext:^(RACSignal *x) &#123;</span><br><span class="line">        [x subscribeNext:^(<span class="keyword">id</span> x) &#123;</span><br><span class="line">            <span class="comment">//  Do something...</span></span><br><span class="line">        &#125;];</span><br><span class="line">    &#125;];</span><br></pre></td></tr></table></figure>
+<p>如果你嫌订阅两个事件麻烦的话，可以使用函数<code>switchToLatest</code>进行转换：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[[[aCommand executionSignals]switchToLatest]</span><br><span class="line">    subscribeNext:^(<span class="keyword">id</span> x) &#123;</span><br><span class="line">        <span class="comment">//  Do something...</span></span><br><span class="line">    &#125;];</span><br></pre></td></tr></table></figure>
+<p>这样就比上面少写了一步信号订阅。</p>
+<p>如果你想在<code>RACCommand</code>执行时做某些提示操作（弹出等待框，出现转来转去的菊花），并在执行后取消提示，你可以这样写：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[[aCommand executionSignals]</span><br><span class="line">    subscribeNext:^(RACSignal *x) &#123;</span><br><span class="line">    	<span class="comment">//  开始提示</span></span><br><span class="line">        [x subscribeNext:^(<span class="keyword">id</span> x) &#123;</span><br><span class="line">			<span class="comment">//  关闭提示</span></span><br><span class="line">            <span class="comment">//  Do something...</span></span><br><span class="line">        &#125;];</span><br><span class="line">    &#125;];</span><br></pre></td></tr></table></figure>
+<p>在对command进行错误处理的时候，我们不应该使用<code>subscribeError:</code>对command的<code>executionSignals</code>进行错误的订阅，因为<code>executionSignals</code>这个信号是不会发送error事件的，那当command包裹的信号发送error事件时，我们要怎样去订阅它呢？这里用到command的一个属性：<code>errors</code>，我们可以这样来对错误进行订阅：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[aCommand.errors</span><br><span class="line">	subscribeNext:^(NSError *x) &#123;</span><br><span class="line">		NSLog(@&quot;ERROR! --&gt; %@&quot;,x);</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
+<h3 id="与-RACSubject的区别"><a href="#与-RACSubject的区别" class="headerlink" title="与 RACSubject的区别"></a>与 RACSubject的区别</h3><p>虽然<code>ReactiveCocoa</code>的官方说过<code>RACSubject</code>较为灵活，所以建议少用，而我平时会经常使用<code>RACSubject</code>用其代替delegate。在刚开始接触RAC的时候，我会觉得<code>RACCommand</code>和<code>RACSubject</code>非常相似，都能够控制执行，都能够进行订阅，然而，它们的区别也是挺大的。</p>
+<p>举个栗子吧，用计算机网络中的术语，<code>RACSubject</code>更像“单工”，而<code>RACCommand</code>就类似于“半双工”。</p>
+<ul>
+<li><p><code>RACSubject</code>只能单向发送事件，发送者将事件发送出去让接收者接收事件后进行处理，所以，<code>RACSubject</code>可代替代理，被监听者可利用subject发送事件，监听者接收事件然后进行相应的监听处理，不过，事件的传递方向是单向的。</p>
+</li>
+<li><p>对于<code>RACCommand</code>，我觉得用HTTP请求能够更形象地说明其原理，HTTP请求是由请求者向服务器发送一条网络请求，而服务器接收到请求然后经过相应处理后再向请求者返回处理过后的结果，数据流是双向的，<code>RACCommand</code>正是如此，让我想让某个部件进行某种会产生结果的操作时，利用<code>RACCommand</code>向此部件发送执行事件，部件接收到执行事件后进行相应操作处理并也通过<code>RACCommand</code>将操作结果回调到上层，使得事件得以双向流通。</p>
+<p>  以上的解释是建立在<code>RACCommand</code>的事件产生与接收者为同一个对象的前提下的，而<code>RACCommand</code>也能将事件产生者和订阅者分离，让某个对象专门发送事件，通过<code>RACCommand</code>将事件传递到对数据进行操作处理的对象，最后，当数据处理完后再搭载着<code>RACCommand</code>把结果事件传出来，并被订阅者对象订阅。</p>
+</li>
+</ul>
+<p>下面的这张图表明了我对<code>RACSubject</code>与<code>RACCommand</code>的理解：</p>
+<p><img src="http://7xsfp9.com1.z0.glb.clouddn.com/RACCommand1.png" alt=""></p>
+<h2 id="RACCommand-实战"><a href="#RACCommand-实战" class="headerlink" title="RACCommand 实战"></a>RACCommand 实战</h2><p>讲解RAC最好的Demo就是Login（登录）界面的构建了，下面我们就来完成一个登录界面，主要使用<code>RACCommand</code>以及<code>MVVM</code>设计模式。</p>
+<h3 id="给出的需求："><a href="#给出的需求：" class="headerlink" title="给出的需求："></a>给出的需求：</h3><ul>
+<li>当所输入的用户名和密码字符串长度都大于6时，登录按钮才可用</li>
+<li>按下登录按钮后，显示表示处理中的旋转小菊花</li>
+<li>模拟网络环境，等待3秒后登录完毕，小菊花消失，并打出“登录成功”的Log</li>
+</ul>
+<h3 id="码代码："><a href="#码代码：" class="headerlink" title="码代码："></a>码代码：</h3><ol>
+<li><p>用Storyboard把界面搭好，调整好布局，连好线，然后把菊花视图隐藏，并创建ViewModel：</p>
+<p> <img src="http://7xsfp9.com1.z0.glb.clouddn.com/RACCommand2.png" alt=""></p>
+ <figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">	<span class="class"><span class="keyword">@interface</span> <span class="title">ViewController</span> ()</span></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">weak</span>, <span class="keyword">nonatomic</span>) <span class="keyword">IBOutlet</span> <span class="built_in">UITextField</span> *userNameTF;</span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">weak</span>, <span class="keyword">nonatomic</span>) <span class="keyword">IBOutlet</span> <span class="built_in">UITextField</span> *passwordTF;</span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">weak</span>, <span class="keyword">nonatomic</span>) <span class="keyword">IBOutlet</span> <span class="built_in">UIButton</span> *loginBtn;</span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">weak</span>, <span class="keyword">nonatomic</span>) <span class="keyword">IBOutlet</span> <span class="built_in">UIActivityIndicatorView</span> *juhuaView;</span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">strong</span>, <span class="keyword">nonatomic</span>) TanLoginViewModel *viewModel;</span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"> <span class="class"><span class="keyword">@implementation</span> <span class="title">ViewController</span></span></span><br><span class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</span><br><span class="line">    	[<span class="keyword">super</span> viewDidLoad];</span><br><span class="line">    	<span class="keyword">self</span>.juhuaView.hidden = <span class="literal">YES</span>;</span><br><span class="line">    	_viewModel = [[TanLoginViewModel alloc]init];</span><br><span class="line">    </span><br><span class="line">	&#125;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<ol>
+<li><p>模拟网络请求，创建Networker，其包含网络请求的方法，在这方法返回带有登录完成事件的信号：</p>
+ <figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">	<span class="class"><span class="keyword">@interface</span> <span class="title">TanNetworker</span> : <span class="title">NSObject</span></span></span><br><span class="line">  	+ (RACSignal *)loginWithUserName:(<span class="built_in">NSString</span> *) name password:(<span class="built_in">NSString</span> *)password;</span><br><span class="line"> 	<span class="keyword">@end</span></span><br><span class="line"> 	</span><br><span class="line"> 	<span class="class"><span class="keyword">@implementation</span> <span class="title">TanNetworker</span></span></span><br><span class="line">+ (RACSignal *)loginWithUserName:(<span class="built_in">NSString</span> *) name password:(<span class="built_in">NSString</span> *)password</span><br><span class="line">&#123;</span><br><span class="line">    	<span class="keyword">return</span> [RACSignal createSignal:^RACDisposable *(<span class="keyword">id</span>&lt;RACSubscriber&gt; subscriber) &#123;</span><br><span class="line">        	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(<span class="number">3</span> * <span class="built_in">NSEC_PER_SEC</span>)), dispatch_get_main_queue(), ^&#123;</span><br><span class="line">            	[subscriber sendNext:[<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"User %@, password %@, login!"</span>,name, password]];</span><br><span class="line">            	[subscriber sendCompleted];</span><br><span class="line">        &#125;);</span><br><span class="line">        	<span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    &#125;];</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>定义登录视图的ViewModel，在里面创建登录的command：</p>
+ <figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">	<span class="class"><span class="keyword">@interface</span> <span class="title">TanLoginViewModel</span> : <span class="title">NSObject</span></span></span><br><span class="line">	<span class="keyword">@property</span>(<span class="keyword">nonatomic</span>, <span class="keyword">copy</span>) <span class="built_in">NSString</span> *userName;</span><br><span class="line">	<span class="keyword">@property</span>(<span class="keyword">nonatomic</span>, <span class="keyword">copy</span>) <span class="built_in">NSString</span> *password;</span><br><span class="line">	<span class="keyword">@property</span>(<span class="keyword">nonatomic</span>, <span class="keyword">strong</span>, <span class="keyword">readonly</span>) RACCommand 	*loginCommand;</span><br><span class="line">	<span class="keyword">@end</span></span><br><span class="line">	</span><br><span class="line">	<span class="class"><span class="keyword">@implementation</span> <span class="title">TanLoginViewModel</span></span></span><br><span class="line">- (instancetype)init</span><br><span class="line">&#123;</span><br><span class="line">    	<span class="keyword">if</span> (<span class="keyword">self</span> = [<span class="keyword">super</span> init]) &#123;</span><br><span class="line">        	RACSignal *userNameLengthSig = [RACObserve(<span class="keyword">self</span>, userName)</span><br><span class="line">                                        	map:^<span class="keyword">id</span>(<span class="built_in">NSString</span> *value) &#123;</span><br><span class="line">                                            	<span class="keyword">if</span> (value.length &gt; <span class="number">6</span>) <span class="keyword">return</span> @(<span class="literal">YES</span>);</span><br><span class="line">                                            	<span class="keyword">return</span> @(<span class="literal">NO</span>);</span><br><span class="line">                                        	&#125;];</span><br><span class="line">        	RACSignal *passwordLengthSig = [RACObserve(<span class="keyword">self</span>, password)</span><br><span class="line">                                        	map:^<span class="keyword">id</span>(<span class="built_in">NSString</span> *value) &#123;</span><br><span class="line">                                            	<span class="keyword">if</span> (value.length &gt; <span class="number">6</span>) <span class="keyword">return</span> @(<span class="literal">YES</span>);</span><br><span class="line">                                            	<span class="keyword">return</span> @(<span class="literal">NO</span>);</span><br><span class="line">                                        	&#125;];</span><br><span class="line">        	RACSignal *loginBtnEnable = [RACSignal combineLatest:@[userNameLengthSig, passwordLengthSig] reduce:^<span class="keyword">id</span>(<span class="built_in">NSNumber</span> *userName, <span class="built_in">NSNumber</span> *password)&#123;</span><br><span class="line">            	<span class="keyword">return</span> @([userName boolValue] &amp;&amp; [password boolValue]);</span><br><span class="line">        	&#125;];</span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">        	_loginCommand = [[RACCommand alloc]initWithEnabled:loginBtnEnable signalBlock:^RACSignal *(<span class="keyword">id</span> input) &#123;</span><br><span class="line">            	<span class="keyword">return</span> [TanNetworker loginWithUserName:<span class="keyword">self</span>.userName password:<span class="keyword">self</span>.password];</span><br><span class="line">        	&#125;];</span><br><span class="line">    	&#125;</span><br><span class="line">    	<span class="keyword">return</span> <span class="keyword">self</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<ol>
+<li><p>在控制器中实现RAC，并且订阅command，响应事件：</p>
+ <figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">@weakify(<span class="keyword">self</span>)</span><br><span class="line">   RAC(<span class="keyword">self</span>.viewModel, userName) = <span class="keyword">self</span>.userNameTF.rac_textSignal;</span><br><span class="line">   RAC(<span class="keyword">self</span>.viewModel, password) = <span class="keyword">self</span>.passwordTF.rac_textSignal;</span><br><span class="line">   <span class="keyword">self</span>.loginBtn.rac_command = <span class="keyword">self</span>.viewModel.loginCommand;</span><br><span class="line">   [[<span class="keyword">self</span>.viewModel.loginCommand executionSignals]</span><br><span class="line">   subscribeNext:^(RACSignal *x) &#123;</span><br><span class="line">       @strongify(<span class="keyword">self</span>)</span><br><span class="line">       <span class="keyword">self</span>.juhuaView.hidden = <span class="literal">NO</span>;</span><br><span class="line">       [x subscribeNext:^(<span class="built_in">NSString</span> *x) &#123;</span><br><span class="line">           <span class="keyword">self</span>.juhuaView.hidden = <span class="literal">YES</span>;</span><br><span class="line">           <span class="built_in">NSLog</span>(<span class="string">@"%@"</span>,x);</span><br><span class="line">       &#125;];</span><br><span class="line">   &#125;];</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>到这里，一个利用<code>RACCommand</code>和<code>MVVM</code>设计模式进行登录操作的小Demo就完成了~</p>
+<h3 id="跑起来"><a href="#跑起来" class="headerlink" title="跑起来"></a>跑起来</h3><p>下面就让我们来测试一下这个小Demo</p>
+<ul>
+<li><p>运行程序，一开始你会看到登录按钮标题颜色为灰色，表明当前登录按钮不可用，当我输入的用户名或密码其中一个的字符串长度小于或等于6的时候，登录按钮也会保持不可用状态：</p>
+<p>  <img src="http://7xsfp9.com1.z0.glb.clouddn.com/RACCommand3.png" alt=""></p>
+</li>
+<li><p>一旦用户名跟密码的字符串长度都满足条件时，登录按钮就会改变颜色，表明可用：</p>
+<p>  <img src="http://7xsfp9.com1.z0.glb.clouddn.com/RACCommand4.png" alt=""></p>
+</li>
+<li><p>现在，点击登录按钮，菊花视图会立即显示出来，并且登录按钮会自动变成不可用的状态：</p>
+<p>  <img src="http://7xsfp9.com1.z0.glb.clouddn.com/RACCommand5.png" alt=""></p>
+</li>
+<li><p>登录完成，编译器打印Log，菊花视图隐藏，登录按钮恢复可用状态：</p>
+<p>  <img src="http://7xsfp9.com1.z0.glb.clouddn.com/RACCommand6.png" alt=""></p>
+</li>
+</ul>
+
+    
+  </div>
+</article>
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal-one" aria-hidden="true">
+  <a href="#close" class="cover" aria-hidden="true"></a>
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <a href="#close" class="btn-close" aria-hidden="true">关闭</a>
+    </div>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/category/"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'Tangentsw';
+    
+    var disqus_url = 'http://yoursite.com/2016/03/30/iOS-ReactiveCocoa使用之RACCommand/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+
+  <script id="dsq-count-scr" src="//Tangentsw.disqus.com/count.js" async></script>
+
+
+
+    
+
+
+
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?398', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

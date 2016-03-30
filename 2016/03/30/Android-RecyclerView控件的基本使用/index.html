@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+
+  <html class="light">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>Android-RecyclerView控件的基本使用 | Tangent</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Android,RecyclerView,安卓新控件," />
+  
+
+  <meta name="description" content="前言最近在研究Android中瀑布流视图的实现方法，我第一次看到这种视图是在一款视频App上，名叫bilibili手机客户端，非常喜欢这款App，它的界面十分漂亮，与用户的交互性很高。以下就是这款App瀑布流视图的截图:
+
+查阅相关资料，我了解到了这种瀑布流效果可以借助一款新的Android控件来实现，这款控件在android-support-v7包中，大名就叫做RecyclerView。可以说，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android-RecyclerView控件的基本使用">
+<meta property="og:url" content="http://yoursite.com/2016/03/30/Android-RecyclerView控件的基本使用/index.html">
+<meta property="og:site_name" content="Tangent">
+<meta property="og:description" content="前言最近在研究Android中瀑布流视图的实现方法，我第一次看到这种视图是在一款视频App上，名叫bilibili手机客户端，非常喜欢这款App，它的界面十分漂亮，与用户的交互性很高。以下就是这款App瀑布流视图的截图:
+
+查阅相关资料，我了解到了这种瀑布流效果可以借助一款新的Android控件来实现，这款控件在android-support-v7包中，大名就叫做RecyclerView。可以说，">
+<meta property="og:image" content="http://img.blog.csdn.net/20150920220708001?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20150920221121835?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20150920221135045?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20150920223320123?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20150920223915025?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:updated_time" content="2016-03-30T08:27:54.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android-RecyclerView控件的基本使用">
+<meta name="twitter:description" content="前言最近在研究Android中瀑布流视图的实现方法，我第一次看到这种视图是在一款视频App上，名叫bilibili手机客户端，非常喜欢这款App，它的界面十分漂亮，与用户的交互性很高。以下就是这款App瀑布流视图的截图:
+
+查阅相关资料，我了解到了这种瀑布流效果可以借助一款新的Android控件来实现，这款控件在android-support-v7包中，大名就叫做RecyclerView。可以说，">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20150920220708001?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  
+  <link href="/css/styles.css?v=5f7f1d39" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?0e70ef65f0d3c8a1e0d427edc322fc77";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+</head>
+
+<body>
+
+  
+    <a href="#modal-one" class="toolbox-mobile">盒子</a>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RecyclerView的使用"><span class="toc-text">RecyclerView的使用</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-Android-RecyclerView控件的基本使用" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">Android-RecyclerView控件的基本使用</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2016.03.30</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>Tangent 汤骏炜</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/Android/">Android</a>
+  </span>
+
+
+
+      
+        <span>
+          <i class="icon-comment"></i>
+          <a href="http://tangent.gift/2016/03/30/Android-RecyclerView控件的基本使用/#disqus_thread"></a>
+        </span>
+      
+
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近在研究Android中瀑布流视图的实现方法，我第一次看到这种视图是在一款视频App上，名叫bilibili手机客户端，非常喜欢这款App，它的界面十分漂亮，与用户的交互性很高。<br>以下就是这款App瀑布流视图的截图:</p>
+<p><img src="http://img.blog.csdn.net/20150920220708001?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>查阅相关资料，我了解到了这种瀑布流效果可以借助一款新的Android控件来实现，这款控件在<code>android-support-v7</code>包中，大名就叫做<code>RecyclerView</code>。可以说，<code>RecyclerView</code>的确是款挺强大的控件，它不仅可以取代<code>ListView</code>，完成数据列表形式的展示，还能做到像瀑布流或表格这样的布局风格，巧妙的是，这些布局风格的切换仅仅需要一行代码就能实现，方便快捷。</p>
+<p>与传统的ListView相比，RecyclerView增加了ViewHolder特性，这对于列表视图优化的实现便捷了许多。传统ListView实现优化一般是采用自己编写ViewHolder的形式，通过可复用视图（convertView）的setTag()和getTag()方法传递ViewHolder，当adapter每次创建item视图( getView() )的时候直接修改ViewHolder中已经定义好的控件的属性，避免了每次在创建item视图( getView() )时都调用findViewById()，从而达到优化的效果。而RecyclerView则自带了ViewHolder，设置起来也十分简单，所以在代码优化的方面比起ListView便捷了不少。</p>
+<h2 id="RecyclerView的使用"><a href="#RecyclerView的使用" class="headerlink" title="RecyclerView的使用"></a>RecyclerView的使用</h2><p>话不多说，以下就展示这款强大控件的使用吧！</p>
+<ol>
+<li><p>首先是引包，因为我使用的是IDE是<code>Android Studio</code>，所以导包的方式为：<br>File–&gt;Project Structure打开项目结构面板，然后按照下方截图所示即可导入<code>RecyclerView</code>包:</p>
+<p> <img src="http://img.blog.csdn.net/20150920221121835?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""><br> <img src="http://img.blog.csdn.net/20150920221135045?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+</li>
+<li><p>导好包后下面就进行代码的编写，以下是数据和RecyclerView的初始化：</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initData</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">     <span class="keyword">this</span>.mData = <span class="keyword">new</span> ArrayList&lt;&gt;();  </span><br><span class="line">     mAdapter = <span class="keyword">new</span> ContentViewAdapter(<span class="keyword">this</span>.mData,getApplicationContext());  </span><br><span class="line">     <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="string">'A'</span>;i&lt;<span class="string">'z'</span>;i++)  </span><br><span class="line">     &#123;  </span><br><span class="line">         Map&lt;String,String&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();  </span><br><span class="line">         map.put(<span class="string">"name"</span>,(<span class="keyword">char</span>)i+<span class="string">""</span>);  </span><br><span class="line">         map.put(<span class="string">"intro"</span>,i+<span class="string">""</span>);  </span><br><span class="line">         <span class="keyword">this</span>.mData.add(map);  </span><br><span class="line">     &#125;  </span><br><span class="line"> &#125;  </span><br><span class="line"> </span><br><span class="line"> <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initView</span><span class="params">(RecyclerView.LayoutManager manager)</span> </span>&#123;  </span><br><span class="line">     <span class="keyword">this</span>.contentView = (RecyclerView) <span class="keyword">this</span>.findViewById(R.id.id_content_view);  </span><br><span class="line">       </span><br><span class="line">     <span class="comment">/*设置Adapter*/</span>  </span><br><span class="line">     <span class="keyword">this</span>.contentView.setAdapter(<span class="keyword">this</span>.mAdapter);  </span><br><span class="line">     <span class="comment">/*设置recyclerView中item增减的动画效果*/</span>  </span><br><span class="line">     <span class="keyword">this</span>.contentView.setItemAnimator(<span class="keyword">new</span> DefaultItemAnimator());  </span><br><span class="line">     <span class="comment">/*设置布局*/</span>  </span><br><span class="line">     <span class="keyword">this</span>.contentView.setLayoutManager(manager);   </span><br><span class="line">      <span class="comment">//manager = new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)  </span></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>上方有涉及到RecyclerView中LayoutManager的设置问题，在这里可传三种LayoutManager：<br><img src="http://img.blog.csdn.net/20150920223320123?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p> <code>其中，若使用第一个manager，则可以把此RecyclerView布局变成ListView的列表形式，若使用第二个，则是瀑布流布局，而第三个则是表格布局，每个布局都有方向可设置，水平或垂直。</code></p>
+<ol>
+<li><p>下面就是创建RecyclerView的Adapter类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">/** </span><br><span class="line"> * My View Adapter </span><br><span class="line"> */</span>  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ContentViewAdapter</span> <span class="keyword">extends</span> <span class="title">RecyclerView</span>.<span class="title">Adapter</span>&lt;<span class="title">ContentViewAdapter</span>.<span class="title">ContentViewHolder</span>&gt; </span>&#123;  </span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">private</span> List&lt;Map&lt;String,String&gt;&gt; data;  </span><br><span class="line">    <span class="keyword">private</span> LayoutInflater inflater;  </span><br><span class="line">    <span class="keyword">private</span> ItemClickListener mListener;  </span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ContentViewAdapter</span><span class="params">(List&lt;Map&lt;String,String&gt;&gt; data,Context context)</span>  </span><br><span class="line">    </span>&#123;  </span><br><span class="line">        <span class="keyword">this</span>.inflater = LayoutInflater.from(context);  </span><br><span class="line">        <span class="keyword">this</span>.data = data;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setItemClickListener</span><span class="params">(ItemClickListener listener)</span>  </span><br><span class="line">    </span>&#123;  </span><br><span class="line">        <span class="keyword">this</span>.mListener = listener;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> ContentViewHolder <span class="title">onCreateViewHolder</span><span class="params">(ViewGroup viewGroup, <span class="keyword">int</span> i)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ContentViewHolder(<span class="keyword">this</span>.inflater.inflate(R.layout.layout_item,viewGroup,<span class="keyword">false</span>));  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getItemCount</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.data.size();  </span><br><span class="line">    &#125;  </span><br><span class="line">      </span><br><span class="line">    <span class="comment">/** </span><br><span class="line">     * 方法中获取item位置我用的是 contentViewHolder.getLayoutPosition() </span><br><span class="line">     * 为什么不用参数中提供的position？ </span><br><span class="line">     * 原因是当增加或删除一个item时，使用到 </span><br><span class="line">     * notifyItemRemoved()或notifyItemInserted()方法 </span><br><span class="line">     * position值不会随之改变，但是getLayoutPosition()返回的是真实的item位置 </span><br><span class="line">     *  </span><br><span class="line">     * */</span>  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onBindViewHolder</span><span class="params">(<span class="keyword">final</span> ContentViewHolder contentViewHolder, <span class="keyword">int</span> position)</span> </span>&#123;  </span><br><span class="line">        Map&lt;String,String&gt; sth = <span class="keyword">this</span>.data.get(contentViewHolder.getAdapterPosition());  </span><br><span class="line">        contentViewHolder.setName(sth.get(<span class="string">"name"</span>));  </span><br><span class="line">        contentViewHolder.setIntro(sth.get(<span class="string">"intro"</span>));  </span><br><span class="line">  </span><br><span class="line">        <span class="keyword">if</span>(mListener!=<span class="keyword">null</span>)  </span><br><span class="line">        &#123;  </span><br><span class="line">  </span><br><span class="line">            contentViewHolder.getItemView().setOnClickListener(<span class="keyword">new</span> View.OnClickListener() &#123;  </span><br><span class="line">                <span class="meta">@Override</span>  </span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View v)</span> </span>&#123;  </span><br><span class="line">                    ContentViewAdapter.<span class="keyword">this</span>.mListener.onItemClick(v, contentViewHolder.getLayoutPosition());  </span><br><span class="line">                &#125;  </span><br><span class="line">            &#125;);  </span><br><span class="line">            contentViewHolder.getItemView().setOnLongClickListener(<span class="keyword">new</span> View.OnLongClickListener() &#123;  </span><br><span class="line">                <span class="meta">@Override</span>  </span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onLongClick</span><span class="params">(View v)</span> </span>&#123;  </span><br><span class="line">                    ContentViewAdapter.<span class="keyword">this</span>.mListener.onItemLongClick(v, contentViewHolder.getLayoutPosition());  </span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">false</span>;  </span><br><span class="line">                &#125;  </span><br><span class="line">            &#125;);  </span><br><span class="line">        &#125;  </span><br><span class="line">  </span><br><span class="line">        <span class="comment">/*随意设置item的高度，目的为了达到瀑布流的效果*/</span>  </span><br><span class="line">        ViewGroup.LayoutParams params = contentViewHolder.getItemView().getLayoutParams();  </span><br><span class="line">        params.height = (<span class="keyword">int</span>) (<span class="number">300</span> + Math.random()*(<span class="number">500</span>-<span class="number">300</span>+<span class="number">1</span>));  </span><br><span class="line">  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">insertItem</span><span class="params">()</span>  </span><br><span class="line">    </span>&#123;  </span><br><span class="line">        Map&lt;String,String&gt; oneDate = <span class="keyword">new</span> HashMap&lt;&gt;();  </span><br><span class="line">        oneDate.put(<span class="string">"name"</span>,<span class="string">"Tom"</span>);  </span><br><span class="line">        oneDate.put(<span class="string">"intro"</span>, <span class="string">"I am tom!"</span>);  </span><br><span class="line">        <span class="keyword">this</span>.data.add(<span class="number">0</span>, oneDate);  </span><br><span class="line">  </span><br><span class="line">        <span class="comment">//记住是用这个方法而不是notifyDataSetChanged()，不然会没有动画效果  </span></span><br><span class="line">        <span class="keyword">this</span>.notifyItemInserted(<span class="number">0</span>);  </span><br><span class="line">  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deleteItem</span><span class="params">(<span class="keyword">int</span> pos)</span>  </span><br><span class="line">    </span>&#123;  </span><br><span class="line">        <span class="keyword">this</span>.data.remove(pos);  </span><br><span class="line">        <span class="comment">//规则同上  </span></span><br><span class="line">        <span class="keyword">this</span>.notifyItemRemoved(pos);  </span><br><span class="line">  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">    <span class="comment">/** </span><br><span class="line">     * My View Holder </span><br><span class="line">     */</span>  </span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">ContentViewHolder</span> <span class="keyword">extends</span> <span class="title">RecyclerView</span>.<span class="title">ViewHolder</span> </span>&#123;  </span><br><span class="line">  </span><br><span class="line">        <span class="keyword">private</span> TextView name;  </span><br><span class="line">        <span class="keyword">private</span> TextView intro;  </span><br><span class="line">        <span class="keyword">private</span> View itemView;  </span><br><span class="line">  </span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">ContentViewHolder</span><span class="params">(View itemView)</span> </span>&#123;  </span><br><span class="line">            <span class="keyword">super</span>(itemView);  </span><br><span class="line">            <span class="keyword">this</span>.itemView = itemView;  </span><br><span class="line">            <span class="keyword">this</span>.name = (TextView) itemView.findViewById(R.id.id_name);  </span><br><span class="line">            <span class="keyword">this</span>.intro = (TextView) itemView.findViewById(R.id.id_intro);  </span><br><span class="line">        &#125;  </span><br><span class="line">  </span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;  </span><br><span class="line">            <span class="keyword">this</span>.name.setText(name);  </span><br><span class="line">        &#125;  </span><br><span class="line">  </span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setIntro</span><span class="params">(String intro)</span> </span>&#123;  </span><br><span class="line">            <span class="keyword">this</span>.intro.setText(intro);  </span><br><span class="line">        &#125;  </span><br><span class="line">  </span><br><span class="line">        <span class="function"><span class="keyword">public</span> View <span class="title">getItemView</span><span class="params">()</span>  </span><br><span class="line">        </span>&#123;  </span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.itemView;  </span><br><span class="line">        &#125;  </span><br><span class="line">  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="comment">/** </span><br><span class="line">     * 监听item点击/长点击事件 </span><br><span class="line">     * 因为RecyclerView中没有帮我们定义item被点击后的事件监听 </span><br><span class="line">     * 所以这需要我们自己去定义 </span><br><span class="line">     */</span>  </span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ItemClickListener</span>  </span><br><span class="line">    </span>&#123;  </span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">onItemClick</span><span class="params">(View view,<span class="keyword">int</span> which)</span></span>;  </span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">onItemLongClick</span><span class="params">(View view,<span class="keyword">int</span> which)</span></span>;  </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>以上就是实现RecyclerView的基本代码，下面是运行时的截图：<br><img src="http://img.blog.csdn.net/20150920223915025?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+
+    
+  </div>
+</article>
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal-one" aria-hidden="true">
+  <a href="#close" class="cover" aria-hidden="true"></a>
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <a href="#close" class="btn-close" aria-hidden="true">关闭</a>
+    </div>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/category/"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'Tangentsw';
+    
+    var disqus_url = 'http://yoursite.com/2016/03/30/Android-RecyclerView控件的基本使用/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+
+  <script id="dsq-count-scr" src="//Tangentsw.disqus.com/count.js" async></script>
+
+
+
+    
+
+
+
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?398', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
