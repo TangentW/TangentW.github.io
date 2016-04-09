@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+
+
+  <html class="light">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>iOS-ReactiveCocoa使用之细说信号的订阅 | Tangent</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="iOS,ReactiveCocoa,RACSignal,RACSubject," />
+  
+
+  <meta name="description" content="前言我们在使用ReactiveCocoa的时候，对RACSignal以及RACSubject的订阅非常频繁，虽然订阅的代码写起来并不繁琐，但里面也会存在一些比较细的问题，这篇文章主要针对信号在订阅中出现的某些问题进行一系列的分析。
+RACSignal的重复订阅在这里我首先创建一个普通的信号:
+12345RACSignal *signalOne = [RACSignal createSignal:^">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS-ReactiveCocoa使用之细说信号的订阅">
+<meta property="og:url" content="http://yoursite.com/2016/04/10/iOS-ReactiveCocoa使用之细说信号的订阅/index.html">
+<meta property="og:site_name" content="Tangent">
+<meta property="og:description" content="前言我们在使用ReactiveCocoa的时候，对RACSignal以及RACSubject的订阅非常频繁，虽然订阅的代码写起来并不繁琐，但里面也会存在一些比较细的问题，这篇文章主要针对信号在订阅中出现的某些问题进行一系列的分析。
+RACSignal的重复订阅在这里我首先创建一个普通的信号:
+12345RACSignal *signalOne = [RACSignal createSignal:^">
+<meta property="og:updated_time" content="2016-04-09T19:08:28.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS-ReactiveCocoa使用之细说信号的订阅">
+<meta name="twitter:description" content="前言我们在使用ReactiveCocoa的时候，对RACSignal以及RACSubject的订阅非常频繁，虽然订阅的代码写起来并不繁琐，但里面也会存在一些比较细的问题，这篇文章主要针对信号在订阅中出现的某些问题进行一系列的分析。
+RACSignal的重复订阅在这里我首先创建一个普通的信号:
+12345RACSignal *signalOne = [RACSignal createSignal:^">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  
+  <link href="/css/styles.css?v=5f7f1d39" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?0e70ef65f0d3c8a1e0d427edc322fc77";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+</head>
+
+<body>
+
+  
+    <a href="#modal-one" class="toolbox-mobile">盒子</a>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/project/"
+            target="_self"
+            >
+            项目
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RACSignal的重复订阅"><span class="toc-text">RACSignal的重复订阅</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#RACMulticastConnection"><span class="toc-text">RACMulticastConnection</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Replay、ReplayLast、ReplayLazily"><span class="toc-text">Replay、ReplayLast、ReplayLazily</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RACSubject的信号重接收订阅"><span class="toc-text">RACSubject的信号重接收订阅</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Replay、ReplayLast、ReplayLazily-1"><span class="toc-text">Replay、ReplayLast、ReplayLazily</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RACReplaySubject"><span class="toc-text">RACReplaySubject</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-text">参考资料</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-iOS-ReactiveCocoa使用之细说信号的订阅" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">iOS-ReactiveCocoa使用之细说信号的订阅</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2016.04.10</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>Tangent 汤骏炜</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/iOS/">iOS</a>
+  </span>
+
+
+
+      
+        <span>
+          <i class="icon-comment"></i>
+          <a href="http://tangent.gift/2016/04/10/iOS-ReactiveCocoa使用之细说信号的订阅/#disqus_thread"></a>
+        </span>
+      
+
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>我们在使用<code>ReactiveCocoa</code>的时候，对<code>RACSignal</code>以及<code>RACSubject</code>的订阅非常频繁，虽然订阅的代码写起来并不繁琐，但里面也会存在一些比较细的问题，这篇文章主要针对信号在订阅中出现的某些问题进行一系列的分析。</p>
+<h2 id="RACSignal的重复订阅"><a href="#RACSignal的重复订阅" class="headerlink" title="RACSignal的重复订阅"></a>RACSignal的重复订阅</h2><p>在这里我首先创建一个普通的信号:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">RACSignal *signalOne = [RACSignal createSignal:^RACDisposable *(<span class="keyword">id</span>&lt;RACSubscriber&gt; subscriber) &#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="built_in">NSInteger</span> flag = <span class="number">0</span>;</span><br><span class="line">    [subscriber sendNext:@(flag++)];</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
+<p>从这个信号的构建中我们可以看出，当程序每次执行这个信号的构建block时，里面设置的静态整数标识符都会被以信号事件的形式发射出去，并且每次被发射，它都会进行自增。</p>
+<p>下面我们来对这个信号进行重复订阅：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[signalOne subscribeNext:^(<span class="built_in">NSNumber</span> *x) &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"Subscriber1--%ld"</span>,[x integerValue]);</span><br><span class="line">&#125;];</span><br><span class="line">    </span><br><span class="line">[signalOne subscribeNext:^(<span class="built_in">NSNumber</span> *x) &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"Subscriber2--%ld"</span>,[x integerValue]);</span><br><span class="line">&#125;];</span><br><span class="line">    </span><br><span class="line">[signalOne subscribeNext:^(<span class="built_in">NSNumber</span> *x) &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"Subscriber3--%ld"</span>,[x integerValue]);</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
+<p>在这里我创建了三个订阅者来对这一个事件进行重复订阅，并且在订阅block中进行输入事件的打印。</p>
+<p>跑起来，让我们看看控制台输出了什么：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Subscriber1--0</span><br><span class="line">Subscriber2--1</span><br><span class="line">Subscriber3--2</span><br></pre></td></tr></table></figure>
+<p><code>可见，当我们每次对这个信号进行订阅时，信号的创建block都会执行一次。</code></p>
+<p>如果这时候我有一个需求：不管有多少个订阅者，信号的构建block都只执行一次，订阅的事件都是这次构建block所发送的事件。我该怎么做？</p>
+<p>这里我可以使用两种方法：</p>
+<h3 id="RACMulticastConnection"><a href="#RACMulticastConnection" class="headerlink" title="RACMulticastConnection"></a>RACMulticastConnection</h3><p>使用方法：</p>
+<ol>
+<li><p>在这里我创建一个信号，它里面的构建block跟上面的<code>signalOne</code>一样：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"> RACSignal *signalTwo = [RACSignal createSignal:^RACDisposable *(<span class="keyword">id</span>&lt;RACSubscriber&gt; subscriber) &#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="built_in">NSInteger</span> flag = <span class="number">0</span>;</span><br><span class="line">    [subscriber sendNext:@(flag++)];</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>以新创建的信号为基础，创建一个<code>RACMulticastConnection</code>：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">RACMulticastConnection *connection = [signalTwo publish];</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>利用新创建的<code>RACMulticastConnection</code>取出其信号属性进行订阅：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">RACSignal *connectionSignal = connection.signal;</span><br><span class="line">   </span><br><span class="line">   [connectionSignal subscribeNext:^(<span class="built_in">NSNumber</span> *x) &#123;</span><br><span class="line">       <span class="built_in">NSLog</span>(<span class="string">@"Subscriber1--%ld"</span>,[x integerValue]);</span><br><span class="line">   &#125;];</span><br><span class="line">   </span><br><span class="line">   [connectionSignal subscribeNext:^(<span class="built_in">NSNumber</span> *x) &#123;</span><br><span class="line">       <span class="built_in">NSLog</span>(<span class="string">@"Subscriber2--%ld"</span>,[x integerValue]);</span><br><span class="line">   &#125;];</span><br><span class="line">   </span><br><span class="line">   [connectionSignal subscribeNext:^(<span class="built_in">NSNumber</span> *x) &#123;</span><br><span class="line">       <span class="built_in">NSLog</span>(<span class="string">@"Subscriber3--%ld"</span>,[x integerValue]);</span><br><span class="line">   &#125;];</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>开始连接：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[connection connect];</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>注意最后一步不能够漏掉，仅仅实现了之前的三步并不会让<code>connectionSignal</code>发送事件，因为当你执行<code>connect</code>方法时，<code>connection</code>才会去订阅源信号，所以<code>connectionSignal</code>实质上其实是一个<code>RACSubject</code>，当源信号发送事件时，相应的<code>connectionSignal</code>会调用<code>sendNext:</code>。</p>
+<p>现在运行程序，看看控制台打印出什么结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Subscriber1--0</span><br><span class="line">Subscriber2--0</span><br><span class="line">Subscriber3--0</span><br></pre></td></tr></table></figure>
+<p>可见，运用此方法，源信号<code>signalTwo</code>的创建block只执行了一次。</p>
+<hr>
+<h3 id="Replay、ReplayLast、ReplayLazily"><a href="#Replay、ReplayLast、ReplayLazily" class="headerlink" title="Replay、ReplayLast、ReplayLazily"></a>Replay、ReplayLast、ReplayLazily</h3><p>这三个是<code>RACSignal</code>都可以使用的方法，它们的返回值也是一个信号，并且对于<code>RACSignal</code>，<code>replay</code>与<code>replayLazily</code>的效果一样，所以接下来我主要讲解<code>replay</code>和<code>replayLast</code>相关使用以及区别：</p>
+<ol>
+<li><p>创建两个信号，它们的构建block与前面不同的是里面会再发送一次带有<code>flag</code>的事件：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"> RACSignal *signalThree = [RACSignal createSignal:^RACDisposable *(<span class="keyword">id</span>&lt;RACSubscriber&gt; subscriber) &#123;</span><br><span class="line">        <span class="keyword">static</span> <span class="built_in">NSInteger</span> flag = <span class="number">0</span>;</span><br><span class="line">        [subscriber sendNext:@(flag++)];</span><br><span class="line">        [subscriber sendNext:@(flag++)];</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    &#125;];</span><br><span class="line">RACSignal *signalFour =[RACSignal createSignal:^RACDisposable *(<span class="keyword">id</span>&lt;RACSubscriber&gt; subscriber) &#123;</span><br><span class="line">        <span class="keyword">static</span> <span class="built_in">NSInteger</span> flag = <span class="number">0</span>;</span><br><span class="line">        [subscriber sendNext:@(flag++)];</span><br><span class="line">        [subscriber sendNext:@(flag++)];</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    &#125;];</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>基于前面创建的两个信号，利用<code>replay</code>以及<code>replayLast</code>分别再引出两个信号<code>signalFive</code>、<code>signalSix</code>：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">RACSignal *signalFive = [signalThree replay];</span><br><span class="line">   RACSignal *signalSix = [signalFour replayLast];</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>分别对<code>signalFive</code>、<code>signalSix</code>进行两次订阅：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[signalFive subscribeNext:^(<span class="built_in">NSNumber</span> *x) &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"Subscriber1-1---%ld"</span>,[x integerValue]);</span><br><span class="line">&#125;];</span><br><span class="line">[signalFive subscribeNext:^(<span class="built_in">NSNumber</span> *x) &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"Subscriber1-2---%ld"</span>,[x integerValue]);</span><br><span class="line">&#125;];</span><br><span class="line"><span class="comment">//  --------------------------------------</span></span><br><span class="line">[signalSix subscribeNext:^(<span class="built_in">NSNumber</span> *x) &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"Subscriber2-1---%ld"</span>,[x integerValue]);</span><br><span class="line">&#125;];</span><br><span class="line">[signalSix subscribeNext:^(<span class="keyword">id</span> x) &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"Subscriber2-2---%ld"</span>,[x integerValue]);</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>运行程序，看看控制台的输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Subscriber1-1---0</span><br><span class="line">Subscriber1-1---1</span><br><span class="line">Subscriber1-2---0</span><br><span class="line">Subscriber1-2---1</span><br><span class="line">------------------</span><br><span class="line">Subscriber2-1---1</span><br><span class="line">Subscriber2-2---1</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>由此可得结论：</p>
+<ul>
+<li>当我们使用<code>replay</code>处理信号后，不管订阅者有多少个，信号的构建block都只会执行一次，且信号的构建block里若有N次事件发送，订阅者就会接收到N次的事件。</li>
+<li>当我们使用<code>replayLast</code>处理信号后，不管订阅者有多少个，信号的构建block都只会执行一次，其不管信号的构建block里有多少次事件发送，订阅者都只会接收到信号最后一次发送的事件。</li>
+</ul>
+<h2 id="RACSubject的信号重接收订阅"><a href="#RACSubject的信号重接收订阅" class="headerlink" title="RACSubject的信号重接收订阅"></a>RACSubject的信号重接收订阅</h2><p>对于<code>RACSubject</code>的订阅来说，其有两种订阅顺序：</p>
+<ul>
+<li>对subject信号的订阅在其<code>sendNext:</code>之前</li>
+<li>对subject信号的订阅在其<code>sendNext:</code>之后</li>
+</ul>
+<p>对于第一种情况，若订阅者先订阅了subject，在之后subject才去发送事件，这样子的话所有订阅者都会接收到此subject发送的全部事件，所以对于这种情况我们不进行讨论。</p>
+<p>我们现在针对第二种情况对某个<code>RACSubject</code>进行普通的订阅：</p>
+<ol>
+<li><p>在这里我们创建一个<code>RACSubject</code>，并让他先发送三个事件，然后我们对它进行订阅：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">RACSubject *subjectOne = [RACSubject subject];</span><br><span class="line">[subjectOne sendNext:@(<span class="number">0</span>)];</span><br><span class="line">[subjectOne subscribeNext:^(<span class="built_in">NSNumber</span> *x) &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"Subscribe--%ld"</span>,[x integerValue]);</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>让我们让程序跑起来，我们会看到控制台并无打印。</p>
+</li>
+</ol>
+<p>可见，对于<code>RACSubject</code>，若我们在其发送事件之后进行普通的订阅，订阅者并不会收到它发送的事件。</p>
+<p>若我们想做到在<code>RACSubject</code>发送事件后进行订阅，且又能接收到它在被订阅前发送的事件，我们应该怎么办呢？</p>
+<p>这时候也是有两个方法供君选择：</p>
+<h3 id="Replay、ReplayLast、ReplayLazily-1"><a href="#Replay、ReplayLast、ReplayLazily-1" class="headerlink" title="Replay、ReplayLast、ReplayLazily"></a>Replay、ReplayLast、ReplayLazily</h3><p>在文章前面我也说到过这三个方法也可用于<code>RACSignal</code>的重复订阅，其实在<code>RACSubject</code>中这三个方法的效果跟<code>RACSignal</code>也非常相似，现在就让我们来看一下：<br>首先，我们先对<code>replay</code>和<code>replayLast</code>进行分析：</p>
+<ol>
+<li><p>创建一个<code>RACSubject</code>，利用<code>replay</code>和<code>replayLast</code>从它里面引出两个信号，并让它发送两个带有整数的事件：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">RACSubject *subjectTwo = [RACSubject subject];</span><br><span class="line">RACSignal *replaySignal = subjectTwo.replay;</span><br><span class="line">RACSignal *replayLastSignal = subjectTwo.replayLast;</span><br><span class="line">[subjectTwo sendNext:@(<span class="number">0</span>)];</span><br><span class="line">[subjectTwo sendNext:@(<span class="number">1</span>)];</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>注意，利用<code>replay</code>和<code>replayLast</code>引出信号的这两个语句不能够写在subject发送事件之后，不然的话订阅者就无法接收到那些事件了。</p>
+<ol>
+<li><p>分别订阅两个引出信号：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[replaySignal subscribeNext:^(<span class="built_in">NSNumber</span> *x) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"One--%ld"</span>,[x integerValue]);</span><br><span class="line">    &#125;];</span><br><span class="line">    [replayLastSignal subscribeNext:^(<span class="built_in">NSNumber</span> *x) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"Two--%ld"</span>,[x integerValue]);</span><br><span class="line">    &#125;];</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>现在，我们运行程序，看看控制台输出了什么：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">One--0</span><br><span class="line">One--1</span><br><span class="line">---------</span><br><span class="line">Two--1</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>由此可见：</p>
+<ul>
+<li>当我们订阅被<code>replay</code>进行处理的<code>RACSubject</code>后，订阅者会收到它在订阅前<code>RACSubject</code>发送的全部事件。</li>
+<li>当我们订阅被<code>replayLast</code>进行处理的<code>RACSubject</code>后，订阅者会收到它在订阅前<code>RACSubject</code>最后一次发送的事件。</li>
+</ul>
+<p>现在我们再看看<code>replayLazily</code></p>
+<p>其实<code>replayLazily</code>跟<code>replay</code>是非常相似的，都可以让订阅者接收到<code>RACSubject</code>被订阅前发送的所有事件，但是，<code>replayLazily</code>比起后者多出了”Lazily”，我们可从它的命名知道它是具有”懒惰性”的，现在我就通过一个例子来对比一下<code>replayLazily</code>和<code>replay</code>：</p>
+<ol>
+<li><p>我们先创建一个<code>RACSubject</code>，利用<code>replay</code>和<code>replayLazily</code>从它里面引出两个信号，并让它发送一个带有整数”0”的事件：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">RACSubject *subjectThree = [RACSubject subject];</span><br><span class="line">   RACSignal *replaySignal = subjectThree.replay;</span><br><span class="line">   RACSignal *replayLazilySignal = subjectThree.replayLazily;</span><br><span class="line">   [subjectThree sendNext:@(<span class="number">0</span>)];</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>然后我们分别对两个引出信号进行订阅：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[replaySignal subscribeNext:^(<span class="built_in">NSNumber</span> *x) &#123;</span><br><span class="line">       <span class="built_in">NSLog</span>(<span class="string">@"One--%ld"</span>,[x integerValue]);</span><br><span class="line">   &#125;];</span><br><span class="line">   [replayLazilySignal subscribeNext:^(<span class="built_in">NSNumber</span> *x) &#123;</span><br><span class="line">       <span class="built_in">NSLog</span>(<span class="string">@"Two--%ld"</span>,[x integerValue]);</span><br><span class="line">   &#125;];</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>现在我们运行程序，查看控制台的打印：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">One--0</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>可见，与<code>replay</code>相比，使用<code>replayLazily</code>引出的信号在订阅后没有接收到在其订阅前<code>RACSubject</code>发送的事件。</p>
+<p>现在我们将代码改一改，在subject发送事件的前面再插一个订阅的语句，最终就是这样子：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">RACSubject *subjectThree = [RACSubject subject];</span><br><span class="line">RACSignal *replaySignal = subjectThree.replay;</span><br><span class="line">RACSignal *replayLazilySignal = subjectThree.replayLazily;</span><br><span class="line">[replayLazilySignal subscribeNext:^(<span class="built_in">NSNumber</span> *x) &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"Zero--%ld"</span>,[x integerValue]);</span><br><span class="line">&#125;];</span><br><span class="line">[subjectThree sendNext:@(<span class="number">0</span>)];</span><br></pre></td></tr></table></figure>
+<p>其他的代码我们不需要修改，然后现在我们运行一下程序，看看控制台的输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Zero--0</span><br><span class="line">One--0</span><br><span class="line">Two--0</span><br></pre></td></tr></table></figure>
+<p>现在我们可以看到，事件发送前后的<code>replayLazily</code>信号都可以接收到事件，由此我们可以得出结论：</p>
+<p>利用<code>replayLazily</code>从<code>RACSubject</code>里引出的信号，存在”懒惰性”，这个信号开始可以理解为一个”冷信号”，需要在<code>RACSubject</code>发送事件前先被订阅一次，让其激活成为”热信号”，然后才可以在<code>RACSubject</code>发送事件后再进行订阅，这样子就能够接收到订阅前subject发送的信号。</p>
+<hr>
+<h3 id="RACReplaySubject"><a href="#RACReplaySubject" class="headerlink" title="RACReplaySubject"></a>RACReplaySubject</h3><p><code>RACReplaySubject</code>可以充当上面的<code>replay</code>以及<code>replayLast</code>方法，接收订阅前发送的全部事件或者最后一个事件，不仅如此，你还能设置让它接收特定数量的事件，下面我就展示一下它的使用：</p>
+<ol>
+<li><p>我们用另一种构建方法构建一个<code>RACReplaySubject</code>，通过设置<code>capacity</code>来限定它接收重接收事件的数量，并让它发送三个事件：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">RACReplaySubject *replaySubject = [RACReplaySubject replaySubjectWithCapacity:<span class="number">2</span>];</span><br><span class="line">                                  <span class="comment">//  [RACReplaySubject subject];</span></span><br><span class="line">[replaySubject sendNext:@(<span class="number">0</span>)];</span><br><span class="line">[replaySubject sendNext:@(<span class="number">1</span>)];</span><br><span class="line">[replaySubject sendNext:@(<span class="number">3</span>)];</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>订阅<code>replaySubject</code>:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[replaySubject subscribeNext:^(<span class="built_in">NSNumber</span> *x) &#123;</span><br><span class="line">       <span class="built_in">NSLog</span>(<span class="string">@"Subscriber--%ld"</span>,[x integerValue]);</span><br><span class="line">   &#125;];</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>运行程序，查看控制台打印：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Subscriber-<span class="number">-1</span></span><br><span class="line">Subscriber-<span class="number">-3</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>可见，<code>RACReplaySubject</code>会接收最新的两条事件。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://spin.atomicobject.com/2014/06/29/replay-replaylast-replaylazily/" target="_blank" rel="external">Comparing replay, replayLast, and replayLazily</a></p>
+<p><a href="http://www.jianshu.com/p/87ef6720a096" target="_blank" rel="external">最快让你上手ReactiveCocoa之基础篇</a></p>
+
+    
+  </div>
+</article>
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal-one" aria-hidden="true">
+  <a href="#close" class="cover" aria-hidden="true"></a>
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <a href="#close" class="btn-close" aria-hidden="true">关闭</a>
+    </div>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/category/"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/project/"
+              target="_self"
+              >
+              项目
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'tangentgift';
+    
+    var disqus_url = 'http://yoursite.com/2016/04/10/iOS-ReactiveCocoa使用之细说信号的订阅/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+
+  <script id="dsq-count-scr" src="//tangentgift.disqus.com/count.js" async></script>
+
+
+
+    
+
+
+
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?398', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
