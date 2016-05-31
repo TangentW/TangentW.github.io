@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+
+  <html class="light">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>iOS-UIMotionEffect，让视图跟着设备一起摇摆 | Tangent</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="iOS,UIMotionEffect,Swift," />
+  
+
+  <meta name="description" content="iOS-UIMotionEffect，让视图跟着设备一起摇摆设备主页的墙纸透视效果我们在使用iPhone或iPad时，如要更换设备主页墙纸，在墙纸设置页面选择好一张自己喜欢的墙纸图片后，我们会发现页面下方有两个选项，分别是静止以及透视。静止就是普通的样式，没有什么动态效果，而透视，顾名思义，就是让屏幕产生一种透视视觉的效果。我们把墙纸的样式设置为透视后，回到主页，当我们摇动手机时，这个绚丽的透视效">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS-UIMotionEffect，让视图跟着设备一起摇摆">
+<meta property="og:url" content="http://yoursite.com/2016/05/31/iOS-UIMotionEffect，让视图跟着设备一起摇摆/index.html">
+<meta property="og:site_name" content="Tangent">
+<meta property="og:description" content="iOS-UIMotionEffect，让视图跟着设备一起摇摆设备主页的墙纸透视效果我们在使用iPhone或iPad时，如要更换设备主页墙纸，在墙纸设置页面选择好一张自己喜欢的墙纸图片后，我们会发现页面下方有两个选项，分别是静止以及透视。静止就是普通的样式，没有什么动态效果，而透视，顾名思义，就是让屏幕产生一种透视视觉的效果。我们把墙纸的样式设置为透视后，回到主页，当我们摇动手机时，这个绚丽的透视效">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/video1-gif.gif">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/QQ20160531-0@2x.png?imageView/2/w/340/q/90">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/video2-gif.gif">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/video3-gif.gif">
+<meta property="og:updated_time" content="2016-05-31T06:08:39.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS-UIMotionEffect，让视图跟着设备一起摇摆">
+<meta name="twitter:description" content="iOS-UIMotionEffect，让视图跟着设备一起摇摆设备主页的墙纸透视效果我们在使用iPhone或iPad时，如要更换设备主页墙纸，在墙纸设置页面选择好一张自己喜欢的墙纸图片后，我们会发现页面下方有两个选项，分别是静止以及透视。静止就是普通的样式，没有什么动态效果，而透视，顾名思义，就是让屏幕产生一种透视视觉的效果。我们把墙纸的样式设置为透视后，回到主页，当我们摇动手机时，这个绚丽的透视效">
+<meta name="twitter:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/video1-gif.gif">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  
+  <link href="/css/styles.css?v=5f7f1d39" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?0e70ef65f0d3c8a1e0d427edc322fc77";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+</head>
+
+<body>
+
+  
+    <a href="#modal-one" class="toolbox-mobile">盒子</a>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/project/"
+            target="_self"
+            >
+            项目
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#iOS-UIMotionEffect，让视图跟着设备一起摇摆"><span class="toc-text">iOS-UIMotionEffect，让视图跟着设备一起摇摆</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#设备主页的墙纸透视效果"><span class="toc-text">设备主页的墙纸透视效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是UIMotionEffect？"><span class="toc-text">什么是UIMotionEffect？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#UIInterpolatingMotionEffect"><span class="toc-text">UIInterpolatingMotionEffect</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#UIInterpolatingMotionEffect结构"><span class="toc-text">UIInterpolatingMotionEffect结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#UIInterpolatingMotionEffect使用"><span class="toc-text">UIInterpolatingMotionEffect使用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#构建UIMotionEffect子类"><span class="toc-text">构建UIMotionEffect子类</span></a></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-iOS-UIMotionEffect，让视图跟着设备一起摇摆" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">iOS-UIMotionEffect，让视图跟着设备一起摇摆</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2016.05.31</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>Tangent 汤骏炜</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/iOS/">iOS</a>
+  </span>
+
+
+
+      
+        <span>
+          <i class="icon-comment"></i>
+          <a href="http://tangent.gift/2016/05/31/iOS-UIMotionEffect，让视图跟着设备一起摇摆/#disqus_thread"></a>
+        </span>
+      
+
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h1 id="iOS-UIMotionEffect，让视图跟着设备一起摇摆"><a href="#iOS-UIMotionEffect，让视图跟着设备一起摇摆" class="headerlink" title="iOS-UIMotionEffect，让视图跟着设备一起摇摆"></a>iOS-UIMotionEffect，让视图跟着设备一起摇摆</h1><h2 id="设备主页的墙纸透视效果"><a href="#设备主页的墙纸透视效果" class="headerlink" title="设备主页的墙纸透视效果"></a>设备主页的墙纸透视效果</h2><p>我们在使用iPhone或iPad时，如要更换设备主页墙纸，在墙纸设置页面选择好一张自己喜欢的墙纸图片后，我们会发现页面下方有两个选项，分别是<code>静止</code>以及<code>透视</code>。<code>静止</code>就是普通的样式，没有什么动态效果，而<code>透视</code>，顾名思义，就是让屏幕产生一种透视视觉的效果。我们把墙纸的样式设置为<code>透视</code>后，回到主页，当我们摇动手机时，这个绚丽的<code>透视</code>效果就出来了！</p>
+<p><img src="http://7xsfp9.com1.z0.glb.clouddn.com/video1-gif.gif" alt="透视效果" title="透视效果"></p>
+<p>可见，当你摇晃手机时，系统会根据设备罗盘传感器参数实时改变主页的显示效果，从底部的壁纸，到应用图标，再到图标上的红色数字提示圈，它们之间产生了相对的运动，看起来非常具有层次感和立体感，十分绚丽，实为苹果又一处让人惊艳不已的设计！</p>
+<h2 id="什么是UIMotionEffect？"><a href="#什么是UIMotionEffect？" class="headerlink" title="什么是UIMotionEffect？"></a>什么是UIMotionEffect？</h2><p>前面我们说到了iOS墙纸的<code>透视</code>效果，若我们的应用中想运用到类似的效果，该怎么去实现呢？一开始我只想到了去监听设备传感器，根据传感器的监听参数去改变视图的位置，这么做确实麻烦，直到我发现了苹果提供的这个api：<code>UIMotionEffect</code>。<br><code>UIMotionEffect</code>是一个抽象基类，可用于实现类似上方所诉的<code>透视</code>效果，我们可以自己创建一个它的子类去重写它提供的抽象方法，而一般的，我们较多是使用系统已经提供出来的它的子类：<code>UIInterpolatingMotionEffect</code>。</p>
+<h2 id="UIInterpolatingMotionEffect"><a href="#UIInterpolatingMotionEffect" class="headerlink" title="UIInterpolatingMotionEffect"></a>UIInterpolatingMotionEffect</h2><h3 id="UIInterpolatingMotionEffect结构"><a href="#UIInterpolatingMotionEffect结构" class="headerlink" title="UIInterpolatingMotionEffect结构"></a>UIInterpolatingMotionEffect结构</h3><p><code>UIInterpolatingMotionEffect</code>中有几个属性，它们分别是：</p>
+<ul>
+<li>keyPath 根据设备传感器反馈参数改变的实例的属性（要改变谁）</li>
+<li>type 所监听的设备传感器的类型，分为水平方向和垂直方向</li>
+<li>minimumRelativeValue 最小的相对改变值</li>
+<li>maximumRelativeValue 最大的相对改变值</li>
+</ul>
+<p>其中minimumRelativeValue越小或者maximumRelativeValue越大标志着改变的幅度越大</p>
+<p><code>UIInterpolatingMotionEffect</code>初始化方法只有一个，传入的参数就是与属性keyPath、type相对应的值。</p>
+<h3 id="UIInterpolatingMotionEffect使用"><a href="#UIInterpolatingMotionEffect使用" class="headerlink" title="UIInterpolatingMotionEffect使用"></a>UIInterpolatingMotionEffect使用</h3><p>现在我以一个实例来说明一下<code>UIInterpolatingMotionEffect</code>的使用：<br>首先我创建了一个视图控制器，然后在上面添加了两个视图，如代码所示：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TestViewController</span>: <span class="title">UIViewController</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">let</span> screenBounds = <span class="type">UIScreen</span>.mainScreen().bounds</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//  MARK: - MotionEffect</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">//  MARK: - Views</span></span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">lazy</span> <span class="keyword">var</span> backgroundImageView: <span class="type">UIImageView</span> = &#123;</span><br><span class="line">        <span class="keyword">let</span> imageView = <span class="type">UIImageView</span>(image: <span class="type">UIImage</span>(named: <span class="string">"feng"</span>))</span><br><span class="line">        imageView.contentMode = .<span class="type">ScaleAspectFill</span></span><br><span class="line">        imageView.frame = <span class="type">CGRectMake</span>(-<span class="number">20</span>, -<span class="number">20</span>, <span class="type">TestViewController</span>.screenBounds.width + <span class="number">40</span>, <span class="type">TestViewController</span>.screenBounds.height + <span class="number">40</span>)</span><br><span class="line">        <span class="keyword">return</span> imageView</span><br><span class="line">    &#125;()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">lazy</span> <span class="keyword">var</span> iconView: <span class="type">UIImageView</span> = &#123;</span><br><span class="line">        <span class="keyword">let</span> imageView = <span class="type">UIImageView</span>(image: <span class="type">UIImage</span>(named: <span class="string">"icon"</span>))</span><br><span class="line">        imageView.contentMode = .<span class="type">ScaleAspectFill</span></span><br><span class="line">        imageView.layer.masksToBounds = <span class="literal">true</span></span><br><span class="line">        imageView.layer.cornerRadius = <span class="number">8</span></span><br><span class="line">        <span class="keyword">let</span> sizeValue: <span class="type">CGFloat</span> = <span class="number">200</span></span><br><span class="line">        <span class="keyword">let</span> x = <span class="number">0.5</span> * (<span class="type">TestViewController</span>.screenBounds.width - sizeValue)</span><br><span class="line">        <span class="keyword">let</span> y = <span class="number">0.5</span> * (<span class="type">TestViewController</span>.screenBounds.height - sizeValue)</span><br><span class="line">        imageView.frame = <span class="type">CGRectMake</span>(x, y, sizeValue, sizeValue)</span><br><span class="line">        <span class="keyword">return</span> imageView</span><br><span class="line">    &#125;()</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//  MARK: - LifeCycle</span></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">viewDidLoad</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.viewDidLoad()</span><br><span class="line">        <span class="keyword">self</span>.view.backgroundColor = <span class="type">UIColor</span>.whiteColor()</span><br><span class="line">        <span class="keyword">self</span>.view.addSubview(<span class="keyword">self</span>.backgroundImageView)</span><br><span class="line">        <span class="keyword">self</span>.view.addSubview(<span class="keyword">self</span>.iconView)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行一下，效果如图：<br><img src="http://7xsfp9.com1.z0.glb.clouddn.com/QQ20160531-0@2x.png?imageView/2/w/340/q/90" alt=""></p>
+<p>现在，我们开始创建<code>UIInterpolatingMotionEffect</code>了，我们在<code>MARK: - MotionEffect</code>下方添加如下代码：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="built_in">lazy</span> <span class="keyword">var</span> backgroundImageViewMotionEffectX: <span class="type">UIInterpolatingMotionEffect</span> = &#123;</span><br><span class="line">    <span class="keyword">let</span> motionEffect = <span class="type">UIInterpolatingMotionEffect</span>(keyPath: <span class="string">"center.x"</span>, type: .<span class="type">TiltAlongHorizontalAxis</span>)</span><br><span class="line">    motionEffect.minimumRelativeValue = -<span class="number">20</span></span><br><span class="line">    motionEffect.maximumRelativeValue = <span class="number">20</span></span><br><span class="line">    <span class="keyword">return</span> motionEffect</span><br><span class="line">&#125;()</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="built_in">lazy</span> <span class="keyword">var</span> backgroundImageViewMotionEffectY: <span class="type">UIInterpolatingMotionEffect</span> = &#123;</span><br><span class="line">    <span class="keyword">let</span> motionEffect = <span class="type">UIInterpolatingMotionEffect</span>(keyPath: <span class="string">"center.y"</span>, type: .<span class="type">TiltAlongVerticalAxis</span>)</span><br><span class="line">    motionEffect.minimumRelativeValue = -<span class="number">20</span></span><br><span class="line">    motionEffect.maximumRelativeValue = <span class="number">20</span></span><br><span class="line">    <span class="keyword">return</span> motionEffect</span><br><span class="line">&#125;()</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="built_in">lazy</span> <span class="keyword">var</span> iconViewMotionEffectX: <span class="type">UIInterpolatingMotionEffect</span> = &#123;</span><br><span class="line">    <span class="keyword">let</span> motionEffect = <span class="type">UIInterpolatingMotionEffect</span>(keyPath: <span class="string">"center.x"</span>, type: .<span class="type">TiltAlongHorizontalAxis</span>)</span><br><span class="line">    motionEffect.minimumRelativeValue = -<span class="number">10</span></span><br><span class="line">    motionEffect.maximumRelativeValue = <span class="number">10</span></span><br><span class="line">    <span class="keyword">return</span> motionEffect</span><br><span class="line">&#125;()</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="built_in">lazy</span> <span class="keyword">var</span> iconViewMotionEffectY: <span class="type">UIInterpolatingMotionEffect</span> = &#123;</span><br><span class="line">    <span class="keyword">let</span> motionEffect = <span class="type">UIInterpolatingMotionEffect</span>(keyPath: <span class="string">"center.y"</span>, type: .<span class="type">TiltAlongVerticalAxis</span>)</span><br><span class="line">    motionEffect.minimumRelativeValue = -<span class="number">10</span></span><br><span class="line">    motionEffect.maximumRelativeValue = <span class="number">10</span></span><br><span class="line">    <span class="keyword">return</span> motionEffect</span><br><span class="line">&#125;()</span><br></pre></td></tr></table></figure>
+<p>然后，我们在<code>viewDidLoad</code>方法后面为两个视图添加<code>motionEffect</code>：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> backgroundImageViewMotionEffectGroup = <span class="type">UIMotionEffectGroup</span>()</span><br><span class="line">backgroundImageViewMotionEffectGroup.motionEffects = [<span class="keyword">self</span>.backgroundImageViewMotionEffectX, <span class="keyword">self</span>.backgroundImageViewMotionEffectY]</span><br><span class="line"><span class="keyword">self</span>.backgroundImageView.addMotionEffect(backgroundImageViewMotionEffectGroup)</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> iconViewMotionEffectGroup = <span class="type">UIMotionEffectGroup</span>()</span><br><span class="line">iconViewMotionEffectGroup.motionEffects = [<span class="keyword">self</span>.iconViewMotionEffectX, <span class="keyword">self</span>.iconViewMotionEffectY]</span><br><span class="line"><span class="keyword">self</span>.iconView.addMotionEffect(iconViewMotionEffectGroup)</span><br></pre></td></tr></table></figure>
+<p>注意，上方出现的<code>UIMotionGroup</code>类是<code>UIMotionEffect</code>的子类，其目的是为了将多个<code>MotionEffect</code>整合起来，然后一起被添加到对象中，当然你也可以一个一个地去添加，用的也是<code>addMotionEffect(effect: UIMotionEffect)</code>方法。</p>
+<p>现在，让我们再将程序跑起来，晃动手机，你将会看到如下效果：<br><img src="http://7xsfp9.com1.z0.glb.clouddn.com/video2-gif.gif" alt=""></p>
+<h2 id="构建UIMotionEffect子类"><a href="#构建UIMotionEffect子类" class="headerlink" title="构建UIMotionEffect子类"></a>构建UIMotionEffect子类</h2><p>除了使用<code>UIInterpolatingMotionEffect</code>之外，我们还能自己构建<code>UIMotionEffect</code>的子类来实现<code>透视</code>效果。<br>继承<code>UIMotionEffect</code>抽象基类后，你只需重写实现它的一个抽象方法<code>keyPathsAndRelativeValuesForViewerOffset(viewerOffset: UIOffset) -&gt; [String : AnyObject]?</code>，参数<code>viewerOffset</code>为一个<code>UIOffset</code>类型，其中储存的是设备传感器所检测到的设备水平以及垂直偏移量，范围都是<code>-1 ~ 1</code>，初始状态下为<code>0</code>，方法的返回值为一个字典类型，对应的key其实是<code>keyPath</code>，而value就是<code>keyPath</code>的更新值，如<code>[&quot;center.x&quot;: 20] (Swift) , @{@&quot;center.x&quot;: @(20)} (Objective-C)</code>。下面我就来重写一个：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PositionMotionEffect</span>: <span class="title">UIMotionEffect</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> scope: <span class="type">CGFloat</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> multiple: <span class="type">CGFloat</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(scope: <span class="type">CGFloat</span>, <span class="built_in">reverse</span>: <span class="type">Bool</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.scope = scope</span><br><span class="line">        <span class="keyword">self</span>.multiple = <span class="built_in">reverse</span> ? -<span class="number">1.0</span> : <span class="number">1.0</span></span><br><span class="line">        <span class="keyword">super</span>.<span class="keyword">init</span>()</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">required</span> <span class="keyword">init</span>?(coder aDecoder: <span class="type">NSCoder</span>) &#123;</span><br><span class="line">        <span class="built_in">fatalError</span>(<span class="string">"init(coder:) has not been implemented"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">keyPathsAndRelativeValuesForViewerOffset</span><span class="params">(viewerOffset: UIOffset)</span></span> -&gt; [<span class="type">String</span> : <span class="type">AnyObject</span>]? &#123;</span><br><span class="line">        <span class="keyword">return</span> [<span class="string">"center.x"</span>: <span class="keyword">self</span>.scope * viewerOffset.horizontal * <span class="keyword">self</span>.multiple,</span><br><span class="line">                <span class="string">"center.y"</span>: <span class="keyword">self</span>.scope * viewerOffset.vertical * <span class="keyword">self</span>.multiple]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中，<code>scope</code>表示移动的相对范围，<code>reverse</code>表示是否反向移动。</p>
+<p>现在，让我们来用上它：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">self</span>.backgroundImageView.addMotionEffect(<span class="type">PositionMotionEffect</span>(scope: <span class="number">40</span>, <span class="built_in">reverse</span>: <span class="literal">false</span>))</span><br><span class="line"><span class="keyword">self</span>.iconView.addMotionEffect(<span class="type">PositionMotionEffect</span>(scope: <span class="number">20</span>, <span class="built_in">reverse</span>: <span class="literal">true</span>))</span><br></pre></td></tr></table></figure>
+<p>出来的效果还是那么绚丽！<br><img src="http://7xsfp9.com1.z0.glb.clouddn.com/video3-gif.gif" alt=""></p>
+
+    
+  </div>
+</article>
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal-one" aria-hidden="true">
+  <a href="#close" class="cover" aria-hidden="true"></a>
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <a href="#close" class="btn-close" aria-hidden="true">关闭</a>
+    </div>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/category/"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/project/"
+              target="_self"
+              >
+              项目
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'tangentgift';
+    
+    var disqus_url = 'http://yoursite.com/2016/05/31/iOS-UIMotionEffect，让视图跟着设备一起摇摆/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+
+  <script id="dsq-count-scr" src="//tangentgift.disqus.com/count.js" async></script>
+
+
+
+    
+
+
+
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?398', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
