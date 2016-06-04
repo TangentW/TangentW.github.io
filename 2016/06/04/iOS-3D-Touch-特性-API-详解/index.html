@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+
+
+  <html class="light">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>iOS-3D Touch 特性 &amp; API 详解 | Tangent</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="iOS,3D Touch,Swift," />
+  
+
+  <meta name="description" content="iOS-3D Touch 特性 &amp;amp; API 详解前言关于这篇文章由于iPhone 6S发布不到一年的时间，很多新特性、新技术还未普遍，不管是3D Touch的使用还是开发，对其有相关了解的人并不多。前几天偶然接触了3D Touch的某个API接口，为了满足好奇心，于是我就系统地去了解了这个苹果的新技术。查阅了相关的官方文档，敲了些Demo，并编写了这篇文章，作为总结。
+从Force Tou">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS-3D Touch 特性 & API 详解">
+<meta property="og:url" content="http://yoursite.com/2016/06/04/iOS-3D-Touch-特性-API-详解/index.html">
+<meta property="og:site_name" content="Tangent">
+<meta property="og:description" content="iOS-3D Touch 特性 &amp;amp; API 详解前言关于这篇文章由于iPhone 6S发布不到一年的时间，很多新特性、新技术还未普遍，不管是3D Touch的使用还是开发，对其有相关了解的人并不多。前几天偶然接触了3D Touch的某个API接口，为了满足好奇心，于是我就系统地去了解了这个苹果的新技术。查阅了相关的官方文档，敲了些Demo，并编写了这篇文章，作为总结。
+从Force Tou">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/Home%20Screen%20Quick%20Actions.gif">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/Peek.gif">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/pick%20quick%20action.png?imageView/2/w/330/q/90">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/infoplist.png">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/Home%20Screen%20Quick%20Actions%20static.png?imageView/2/w/330/q/90">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/Home%20Screen%20Quick%20Actions%20dynamic.png?imageView/2/w/330/q/9">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/peekandPop.png?imageView/2/w/310/q/9">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/force.gif">
+<meta property="og:updated_time" content="2016-06-04T15:52:20.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS-3D Touch 特性 & API 详解">
+<meta name="twitter:description" content="iOS-3D Touch 特性 &amp;amp; API 详解前言关于这篇文章由于iPhone 6S发布不到一年的时间，很多新特性、新技术还未普遍，不管是3D Touch的使用还是开发，对其有相关了解的人并不多。前几天偶然接触了3D Touch的某个API接口，为了满足好奇心，于是我就系统地去了解了这个苹果的新技术。查阅了相关的官方文档，敲了些Demo，并编写了这篇文章，作为总结。
+从Force Tou">
+<meta name="twitter:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/Home%20Screen%20Quick%20Actions.gif">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  
+  <link href="/css/styles.css?v=5f7f1d39" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?0e70ef65f0d3c8a1e0d427edc322fc77";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+</head>
+
+<body>
+
+  
+    <a href="#modal-one" class="toolbox-mobile">盒子</a>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/project/"
+            target="_self"
+            >
+            项目
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#iOS-3D-Touch-特性-amp-API-详解"><span class="toc-text">iOS-3D Touch 特性 & API 详解</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#关于这篇文章"><span class="toc-text">关于这篇文章</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#从Force-Touch到3D-Touch"><span class="toc-text">从Force Touch到3D Touch</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#特性-—-3D-Touch-On-iPhone"><span class="toc-text">特性 — 3D Touch On iPhone</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Home-Screen-Quick-Actions-主页屏幕快速操作"><span class="toc-text">Home Screen Quick Actions - 主页屏幕快速操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Peek-and-Pop-预览和查看详情"><span class="toc-text">Peek and Pop - 预览和查看详情</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Peek-预览"><span class="toc-text">Peek - 预览</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Peek-quick-actions-预览中的快速操作"><span class="toc-text">Peek quick actions - 预览中的快速操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Pop-查看详情"><span class="toc-text">Pop - 查看详情</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3D-Touch-还能做些什么？"><span class="toc-text">3D Touch 还能做些什么？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开发-—-3D-Touch-API"><span class="toc-text">开发 — 3D Touch API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#判断设备是否支持3D-Touch"><span class="toc-text">判断设备是否支持3D Touch</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#UITraitEnvironment的结构"><span class="toc-text">UITraitEnvironment的结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#如何使用UITraitEnvironment"><span class="toc-text">如何使用UITraitEnvironment</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Home-Screen-Quick-Actions"><span class="toc-text">Home Screen Quick Actions</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#实现Home-Screen-Quick-Actions选项栏菜单"><span class="toc-text">实现Home Screen Quick Actions选项栏菜单</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#监听Home-Screen-Quick-Actions选项的选择并进行处理"><span class="toc-text">监听Home Screen Quick Actions选项的选择并进行处理</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Peek-And-Pop"><span class="toc-text">Peek And Pop</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Peek-amp-Pop"><span class="toc-text">Peek & Pop</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Peek-quick-actions"><span class="toc-text">Peek quick actions</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3D-Touch的其他API"><span class="toc-text">3D Touch的其他API</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-text">参考资料</span></a></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-iOS-3D-Touch-特性-API-详解" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">iOS-3D Touch 特性 &amp; API 详解</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2016.06.04</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>Tangent 汤骏炜</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/iOS/">iOS</a>
+  </span>
+
+
+
+      
+        <span>
+          <i class="icon-comment"></i>
+          <a href="http://tangent.gift/2016/06/04/iOS-3D-Touch-特性-API-详解/#disqus_thread"></a>
+        </span>
+      
+
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h1 id="iOS-3D-Touch-特性-amp-API-详解"><a href="#iOS-3D-Touch-特性-amp-API-详解" class="headerlink" title="iOS-3D Touch 特性 &amp; API 详解"></a>iOS-3D Touch 特性 &amp; API 详解</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h3 id="关于这篇文章"><a href="#关于这篇文章" class="headerlink" title="关于这篇文章"></a>关于这篇文章</h3><p>由于iPhone 6S发布不到一年的时间，很多新特性、新技术还未普遍，不管是<code>3D Touch</code>的使用还是开发，对其有相关了解的人并不多。前几天偶然接触了<code>3D Touch</code>的某个API接口，为了满足好奇心，于是我就系统地去了解了这个苹果的新技术。查阅了相关的官方文档，敲了些Demo，并编写了这篇文章，作为总结。</p>
+<h3 id="从Force-Touch到3D-Touch"><a href="#从Force-Touch到3D-Touch" class="headerlink" title="从Force Touch到3D Touch"></a>从Force Touch到3D Touch</h3><p>使用过新版Mac Book或Apple Watch的朋友应该对<code>Force Touch</code>这个词汇并不陌生，这是苹果针对设备触控操作的一项新的技术，将传统的用户触控点击操作扩展化，加上了按压操作，设备可根据用户手指在屏幕上的按压力度来进行相应的响应。在新版Mac Book以及Apple Watch中，我们可以通过使用不同的力度按压触控板或触控屏来调出更多的控制选项，人机交互性非常高。<br><code>3D Touch</code>是<code>Force Touch</code>延伸出的新一代技术，它现在应用于装配了<code>iOS9</code>以上操作系统的<code>iPhone 6S</code>上，致力于向iPhone用户提供更加高质量的交互体验，将操作方式扩展至三维层面。</p>
+<p>本篇文章分别针对<code>3D Touch</code>的特性以及开发API进行讲解。</p>
+<h2 id="特性-—-3D-Touch-On-iPhone"><a href="#特性-—-3D-Touch-On-iPhone" class="headerlink" title="特性 — 3D Touch On iPhone"></a>特性 — 3D Touch On iPhone</h2><h3 id="Home-Screen-Quick-Actions-主页屏幕快速操作"><a href="#Home-Screen-Quick-Actions-主页屏幕快速操作" class="headerlink" title="Home Screen Quick Actions - 主页屏幕快速操作"></a>Home Screen Quick Actions - 主页屏幕快速操作</h3><p>在手机的主页上，假如你用手指轻轻按压某个应用的图标，图标的背后出现了一个半透明的矩形，这就说明了这款应用支持<code>Home Screen Quick Actions</code>(主页屏幕快速操作)。这时，我们保持手指按压，并加大力度，你就会发现这个应用图标的周围都变模糊了，一个小巧的选项栏菜单在你眼前弹出。<br><img src="http://7xsfp9.com1.z0.glb.clouddn.com/Home%20Screen%20Quick%20Actions.gif" alt=""><br>这个选项栏菜单每个选项视图最多允许有两行文本（主文本、次文本）以及一个图标（可要可不要）。另外，图标的位置是不定的，它会在文本的左边或者右边进行布局，具体放置于哪一边，则根据应用图标的水平位置而定，不过这些布局系统都已经帮我们处理好了。<br>当我们点击某一个选项，应用程序就会运行起来，并且执行相应的操作，相比于以往用户要先进入应用程序才能再进行操作，使用<code>Home Screen Quick Actions</code>则更加的便利。</p>
+<h3 id="Peek-and-Pop-预览和查看详情"><a href="#Peek-and-Pop-预览和查看详情" class="headerlink" title="Peek and Pop - 预览和查看详情"></a>Peek and Pop - 预览和查看详情</h3><h4 id="Peek-预览"><a href="#Peek-预览" class="headerlink" title="Peek - 预览"></a>Peek - 预览</h4><p>在传统的手机用户操作中，当我们在应用里看到某张缩略图、某个网址链接或者某个列表Item时，若我们想查看详细的信息，比如想看缩略图对应的大图、网址链接对应的网页、Item对应的详情页面，一般会用手指对屏幕进行点击操作，从而让应用的页面进行跳转。新特性<code>Peek</code>则大大提高了这类型操作的用户体验。<br><img src="http://7xsfp9.com1.z0.glb.clouddn.com/Peek.gif" alt="Peek演示"><br>上方效果图所展示的是对一个缩略图片进行<code>Peek</code>操作，当我们用手指轻压图片时，图片的周围迅速模糊，这说明你所按压的地方支持<code>Peek</code>操作。按压力度稍微增大，预览图就出来了，这就是<code>Peek</code>（预览）功能。当我们将手指从屏幕上抬起时，预览图就会消失，界面也就恢复回来。<br>有了<code>Peek</code>的操作简化，当我们想预览某些详情时，只需按压屏幕，手机即可弹出详情页面；移开手指，界面恢复原状，这样就使得用户不必进入一个新的页面浏览详情，然后再点击返回按钮回到原来视图了。</p>
+<hr>
+<h4 id="Peek-quick-actions-预览中的快速操作"><a href="#Peek-quick-actions-预览中的快速操作" class="headerlink" title="Peek quick actions - 预览中的快速操作"></a>Peek quick actions - 预览中的快速操作</h4><p>上方已经说到，当我们的手指按压需要预览的屏幕的区域，预览的视图就会出现。现在，继续保持手指的按压状态，然后再向上方滑动，就会在预览视图的下方滑出一个选项栏菜单。<br><img src="http://7xsfp9.com1.z0.glb.clouddn.com/pick%20quick%20action.png?imageView/2/w/330/q/90" alt=""><br>当菜单完全显示出来后，你可以松开按压在屏幕上的手指，然后点击相应的选项来执行操作，就像上方效果图一样，可以复制、分享、点赞、删除等等。</p>
+<hr>
+<h4 id="Pop-查看详情"><a href="#Pop-查看详情" class="headerlink" title="Pop - 查看详情"></a>Pop - 查看详情</h4><p>在能出现<code>Peek</code>预览视图的手指按压力度基础上，用户再使把劲加大点力度，就能进入相关详情页面，这个就是<code>Pop</code>。事实上，<code>Pop</code>所进入的详情页面跟用户用手指轻点后所跳转出来的页面是一样的，所以，用户如果想直接进入详情页面，不需要预览，可以直接轻点屏幕指定区域即可；而在预览中，用户想了解得更多，可以再加大按压力度进入详情页面。</p>
+<h3 id="3D-Touch-还能做些什么？"><a href="#3D-Touch-还能做些什么？" class="headerlink" title="3D Touch 还能做些什么？"></a>3D Touch 还能做些什么？</h3><p><code>3D Touch</code>能完成的功能非常多，你可以利用它来制作一个绘画板，根据手指在屏幕上的压力大小来模拟画笔的粗细，你也可以做一款精美的手游，通过手指的按压力度来反馈不同的游戏操作……<br>总之，<code>3D Touch</code>非常的强大，潜力无限。😁</p>
+<h2 id="开发-—-3D-Touch-API"><a href="#开发-—-3D-Touch-API" class="headerlink" title="开发 — 3D Touch API"></a>开发 — 3D Touch API</h2><p>下面，我会通过苹果提供的<code>3D Touch</code>API就之前所提及到的各个<code>3D Touch</code>特性进行开发实现的分析。所有的交互跟视图布局我都是使用纯代码去实现。</p>
+<h3 id="判断设备是否支持3D-Touch"><a href="#判断设备是否支持3D-Touch" class="headerlink" title="判断设备是否支持3D Touch"></a>判断设备是否支持3D Touch</h3><p>我们在为应用添加<code>3D Touch</code>功能时，有必要做设备是否支持或开启<code>3D Touch</code>的判断，考虑到用户使用的手机型号比<code>iPhone 6s</code>低，或者用户自己已经手动关闭了<code>3D Touch</code>功能，所以在编写代码的时候，需要获取或监听当前设备针对于<code>3D Touch</code>的可用性状态，以便在后面做出判断。</p>
+<p>我们获取当前设备针对于<code>3D Touch</code>的可用性状态，可以使用协议<code>UITraitEnvironment</code>。</p>
+<h4 id="UITraitEnvironment的结构"><a href="#UITraitEnvironment的结构" class="headerlink" title="UITraitEnvironment的结构"></a>UITraitEnvironment的结构</h4><p><code>UITraitEnvironment</code>中包含一个属性以及一个方法：</p>
+<ul>
+<li>var traitCollection: UITraitCollection</li>
+<li>func traitCollectionDidChange(previousTraitCollection: UITraitCollection?)</li>
+</ul>
+<p>不管是属性还是方法，其目的都是让我们能够获取到当前的设备特征环境集合，只不过使用方法来获取比较动态，可以时刻监听变化。</p>
+<p>获取到的环境集合为<code>UITraitCollection</code>类型，这个类里面包含属性<code>forceTouchCapability</code>，是一个<code>UIForceTouchCapability</code>枚举类型，有三个case，分别是<code>Unknown</code>（未知的）、<code>Unavailable</code>（不可用的）、<code>Available</code>（可用的），根据相应的<code>forceTouchCapability</code>值，我们就能知道当前设备对<code>3D Touch</code>的可用性状态。</p>
+<hr>
+<h4 id="如何使用UITraitEnvironment"><a href="#如何使用UITraitEnvironment" class="headerlink" title="如何使用UITraitEnvironment"></a>如何使用UITraitEnvironment</h4><p>其实，很多我们常用的类都已经实现了<code>UITraitEnvironment</code>协议，比如说<code>UIView</code>、<code>UIViewController</code>等等，我们可以直接从他们的内部中获得<code>traitCollection</code>属性然后进行判断：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="keyword">self</span>.traitCollection.forceTouchCapability == .<span class="type">Available</span> &#123;</span><br><span class="line">	<span class="comment">//  <span class="doctag">TODO:</span>  加入实现3D Touch的代码</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果我们想做到实时监听状态的变化，比如软件在运行的时候用户突然关闭了<code>3D Touch</code>，我们可以自己去实现<code>UITraitEnvironment</code>协议，实现其中的监听方法，在这里我就不演示代码了。</p>
+<h3 id="Home-Screen-Quick-Actions"><a href="#Home-Screen-Quick-Actions" class="headerlink" title="Home Screen Quick Actions"></a>Home Screen Quick Actions</h3><h4 id="实现Home-Screen-Quick-Actions选项栏菜单"><a href="#实现Home-Screen-Quick-Actions选项栏菜单" class="headerlink" title="实现Home Screen Quick Actions选项栏菜单"></a>实现Home Screen Quick Actions选项栏菜单</h4><p>实现<code>Home Screen Quick Actions</code>有两种方法，分别是<code>static</code>(静态)实现以及<code>dynamic</code>(动态)实现，它们的实现主要都是依靠<code>UIApplicationShortcutItem</code>这个类来进行。</p>
+<ul>
+<li><p><strong>Static 静态实现</strong> 可以硬性地规定好要呈现出来的选项信息，这些设定好的选项在后期是不能够再次修改的。进行静态实现，我们需要修改的是<code>Info.plist</code>文件。下面我就编辑<code>Info.plist</code>文件来进行静态实现：<br><img src="http://7xsfp9.com1.z0.glb.clouddn.com/infoplist.png" alt=""></p>
+<p>如图所示，我在<code>Info.plist</code>文件中添加了一个key为<code>UIApplicationShortcutItems</code>的数组，里面有两个字典类Item，每个字典类Item都代表了一个<code>UIApplicationShortcutItem</code>，它们具有5个属性：</p>
+<ul>
+<li><strong>UIApplicationShortcutItemIconType</strong> (String) 选项的图标类型，可选择性设置。使用<code>static</code>静态实现是无法使用自己定义的图标的，不过系统也已经提供好一些默认的图标，我们可以设置图标的类型来使用指定的系统默认图标。那究竟有多少种图标类型呢？这个我放在后面讲~</li>
+<li><strong>UIApplicationShortcutItemTitle</strong> (String) 选项的主标题，必要设置项。相对于次标题，主标题文字较大且颜色较深，位于次标题的上方。</li>
+<li><strong>UIApplicationShortcutItemSubtitle</strong> (String) 选项的次标题，可选择性设置。主要起到选项的帮助提示作用。</li>
+<li><strong>UIApplicationShortcutItemType</strong> (String) 选项的类型，必要设置项。利用它，我们就可以在你点击选项执行handle语句时判别具体是哪一个选项被选中了，从而让程序进行相应的操作。关于选项选择后的反馈处理，我在后面也会详细去讲。</li>
+<li><p><strong>UIApplicationShortcutItemUserInfo</strong> (Dictionary) 附加信息，可选择性设置。你可以在里面添加某些附加信息，在执行handle语句的时候可提取出来，具体看你的操作逻辑是如何实现的了。</p>
+<p>现在我把应用跑起来后，回到手机的主页面，并用力按压此应用的图标，<code>Home Screen Quick Actions</code>的选项栏菜单就呈现在我们的眼前：<br><img src="http://7xsfp9.com1.z0.glb.clouddn.com/Home%20Screen%20Quick%20Actions%20static.png?imageView/2/w/330/q/90" alt=""></p>
+<hr>
+</li>
+</ul>
+</li>
+<li><p><strong>Dynamic 动态实现</strong> 较为灵活，我们通过代码去构建每个选项，所以，在程序运行的过程中，选项的信息可以动态地去改变，不过，动态实现较静态实现来说相对复杂了点。</p>
+  <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">ShortcutItemType</span>: <span class="title">String</span> </span>&#123;</span><br><span class="line">       <span class="keyword">case</span> <span class="type">Home</span></span><br><span class="line">       <span class="keyword">case</span> <span class="type">Share</span></span><br><span class="line">   &#125;</span><br><span class="line">   </span><br><span class="line">   <span class="function"><span class="keyword">func</span> <span class="title">setupShortcutItemsWithApplication</span><span class="params">(application: UIApplication)</span></span> &#123;</span><br><span class="line">       <span class="keyword">let</span> playItem = <span class="type">UIApplicationShortcutItem</span>(type: <span class="type">ShortcutItemType</span>.<span class="type">Home</span>.rawValue, localizedTitle: <span class="string">"主页"</span>, localizedSubtitle: <span class="string">"点击进入应用主页"</span>, icon: <span class="type">UIApplicationShortcutIcon</span>(templateImageName: <span class="string">"icon_home"</span>), userInfo: <span class="literal">nil</span>)</span><br><span class="line">       <span class="keyword">let</span> shareItem = <span class="type">UIApplicationShortcutItem</span>(type: <span class="type">ShortcutItemType</span>.<span class="type">Share</span>.rawValue, localizedTitle: <span class="string">"分享"</span>, localizedSubtitle: <span class="string">"点击向朋友分享"</span>, icon: <span class="type">UIApplicationShortcutIcon</span>(type: .<span class="type">Share</span>), userInfo: <span class="literal">nil</span>)</span><br><span class="line">       application.shortcutItems = [playItem, shareItem]</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>  如代码所示，应用的单例application对象中拥有<code>shortcutItems</code>属性，这是一个数组对象，我们可以在里面添加<code>UIApplicationShortcutItem</code>实例或可变<code>UIMutableApplicationShortcutItem</code>实例，从而实现菜单中的每个选项。<br>  这里值得注意的是，要在<code>shortcutItem</code>上配置icon并不是用到简单的<code>UIImage</code>类，而是使用专门的<code>UIApplicationShortcutIcon</code>，它有两种构造方式，一种是选择一个类型，然后使用与类型相对应的系统所提供的图标，究竟有多少种类型呢？我下面来列举一下：</p>
+  <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">UIApplicationShortcutIconType</span> 枚举：</span><br><span class="line"></span><br><span class="line">iOS <span class="number">9.0</span> 及以上系统所支持：</span><br><span class="line"><span class="keyword">case</span> <span class="type">Compose</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Play</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Pause</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Add</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Location</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Search</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Share</span></span><br><span class="line">   </span><br><span class="line">   iOS <span class="number">9.1</span> 及以上系统所支持：</span><br><span class="line">   <span class="keyword">case</span> <span class="type">Prohibit</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Contact</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Home</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">MarkLocation</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Favorite</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Love</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Cloud</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Invitation</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Confirmation</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Mail</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Message</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Date</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Time</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">CapturePhoto</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">CaptureVideo</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Task</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">TaskCompleted</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Alarm</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Bookmark</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Shuffle</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Audio</span></span><br><span class="line">   <span class="keyword">case</span> <span class="type">Update</span></span><br></pre></td></tr></table></figure>
+<p>  构造的另一种方式是填入一串字符串，其实就是图片的名字，对于这张图片，苹果做出了以下的要求：</p>
+<ol>
+<li>这张图片必须位于你的应用程序包(app bundle)中。</li>
+<li><p>图片要为<code>正方形</code>，颜色使用<code>单色</code>，大小为<code>35×35</code> points(点)。系统为了保持UI的统一性，会将你提供的这张图片进行颜色渲染，最终图片的整体颜色会变为灰黑色，所以这里建议图片使用单色，即只有一种颜色。</p>
+<p>现在我们在<code>AppDelegate</code>中的<code>application(_:, didFinishLaunchingWithOptions:)</code>方法里面执行<code>setupShortcutItemsWithApplication(_:)</code>，把application作为参数传入其中。<br>这里提供一部分的参考代码：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="keyword">let</span> shortcutItems = application.shortcutItems <span class="keyword">where</span> shortcutItems.isEmpty &#123;</span><br><span class="line">           setupShortcutItemsWithApplication(application)</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure>
+<p>可能有人在这里会感到奇怪，为什么我在执行<code>setupShortcutItemsWithApplication(_:)</code>方法前要先判断<code>application</code>中的<code>shortcutItems</code>数组属性是否为空容器（里面没有对象），原因是当我们第一次开启这个应用的时候，系统会将我们应用所配置的所有<code>shortcutItem</code>进行记录，在我们下一次打开应用时，我们不必再去配置一遍，也就是说，<code>application</code>中的<code>shortcutItems</code>属性在应用第一次打开的时候是空的，但是当我们进行相应的配置后，在下一次的应用开启时，<code>shortcutItems</code>就会默认被系统所赋值，我们也没必要每次打开应用都去配置它。</p>
+<p>现在，运行程序，我们来测试一下：<br><img src="http://7xsfp9.com1.z0.glb.clouddn.com/Home%20Screen%20Quick%20Actions%20dynamic.png?imageView/2/w/330/q/9" alt=""></p>
+<p>在程序运行的过程中，我们可以任意改变<code>shortcutItems</code>：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">UIApplication</span>.sharedApplication().shortcutItems = dynamicShortcuts</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ul>
+<ul>
+<li><strong>static与dynamic混用共同实现Home Screen Quick Actions</strong> 时，选项栏菜单中各个选项的顺序是按照<code>先静态后动态</code>来排列的。此外，我们还要注意避免选项类型的冲突。</li>
+</ul>
+<hr>
+<h4 id="监听Home-Screen-Quick-Actions选项的选择并进行处理"><a href="#监听Home-Screen-Quick-Actions选项的选择并进行处理" class="headerlink" title="监听Home Screen Quick Actions选项的选择并进行处理"></a>监听Home Screen Quick Actions选项的选择并进行处理</h4><p>监听<code>Home Screen Quick Actions</code>选项的点击选择，我们要在<code>AppDelegate</code>中实现方法<code>application(_:, performActionForShortcutItem:, completionHandler:)</code>，判断用户选择的是哪一个选项，然后进行相应的操作：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">application</span><span class="params">(application: UIApplication, performActionForShortcutItem shortcutItem: UIApplicationShortcutItem, completionHandler: <span class="params">(Bool)</span></span></span> -&gt; <span class="type">Void</span>) &#123;</span><br><span class="line">    <span class="keyword">switch</span> shortcutItem.type &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="type">ShortcutItemType</span>.<span class="type">Home</span>.rawValue:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"选择了主页选项"</span>)</span><br><span class="line">    <span class="keyword">case</span> <span class="type">ShortcutItemType</span>.<span class="type">Share</span>.rawValue:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"选择了分享选项"</span>)</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"选择了其他选项"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    completionHandler(<span class="literal">true</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在方法的最后记得调用<code>completionHandler</code>闭包，把是否处理完成的布尔值传进去，如成功处理完，传<code>true</code>，失败，则传<code>false</code>。</p>
+<hr>
+<p><strong>注意：</strong>关于方法<code>application(_:, performActionForShortcutItem:, completionHandler:)</code>，苹果官方文档给出了使用的相关注意事项：</p>
+<p>这个方法会在你选择了某个<code>Home Screen Quick Actions</code>选项时调用，但是前提条件是AppDelegate中的<code>application(_:,willFinishLaunchingWithOptions:)</code>方法以及<code>application(_:didFinishLaunchingWithOptions)</code>方法都要返回<code>true</code>真值。苹果建议这个方法是在应用已经启动了、在后台工作的时候才去监听<code>Home Screen Quick Actions</code>选项的选择，若我们在应用程序还未启动的时候使用<code>Home Screen Quick Actions</code>选择某个选项，我们就不应该使用这个方法来进行监听，应当在<code>application(_:,willFinishLaunchingWithOptions:)</code>方法或者<code>application(_:didFinishLaunchingWithOptions)</code>方法里进行操作，最后返回<code>false</code>，使得AppDelegate不会再去调用<code>application(_:, performActionForShortcutItem:, completionHandler:)</code>这个方法。</p>
+<hr>
+<p>那么，当<code>Home Screen Quick Actions</code>选项在应用还未启动时被选择了，我们应该如何在AppDelegate中的<code>application(_:,willFinishLaunchingWithOptions:)</code>方法或<code>application(_:didFinishLaunchingWithOptions)</code>方法里监听<code>Home Screen Quick Actions</code>选项的选择以及做出相应的操作呢？这里我们可以从这两个方法的<code>launchOptions</code>参数中获取到对应的<code>shortcutItem</code>：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> shortcutItem = launchOptions?[<span class="type">UIApplicationLaunchOptionsShortcutItemKey</span>] <span class="keyword">as</span>? <span class="type">UIApplicationShortcutItem</span></span><br></pre></td></tr></table></figure>
+<p>下面我就重写<code>application(_:didFinishLaunchingWithOptions)</code>来演示一下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">application</span><span class="params">(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?)</span></span> -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//  <span class="doctag">TODO:</span> 应用的初始化代码，包括UIWindow以及UIViewController等等的配置...</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> performActionForShortcutItemWhenAppLaunch = <span class="literal">false</span></span><br><span class="line">    <span class="comment">//  判断应用的启动是否是因为用户选择了Home Screen Quick Actions选项</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">let</span> shortcutItem = launchOptions?[<span class="type">UIApplicationLaunchOptionsShortcutItemKey</span>] <span class="keyword">as</span>? <span class="type">UIApplicationShortcutItem</span> &#123;</span><br><span class="line">        performActionForShortcutItemWhenAppLaunch = <span class="literal">true</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"选择了<span class="subst">\(shortcutItem.type)</span>类的选项"</span>)</span><br><span class="line">        <span class="comment">//  <span class="doctag">TODO:</span> 相应的Handle操作</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> !performActionForShortcutItemWhenAppLaunch</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如上方代码所示，我在前面就定义了以布尔型变量<code>performActionForShortcutItemWhenAppLaunch</code>，默认值为<code>false</code>,然后再从<code>launchOptions</code>中取出<code>shortcutItem</code>，如果<code>shortcutItem</code>为空，则说明应用的启用是由于用户点击了应用的图标，而不是通过<code>Home Screen Quick Actions</code>；如果<code>shortcutItem</code>不为空，则说明用户是用过点击<code>shortcutItem</code>对应的选项来启动应用的，这时候我将<code>true</code>值赋值给了<code>performActionForShortcutItemWhenAppLaunch</code>。在方法的最后，我通过返回<code>performActionForShortcutItemWhenAppLaunch</code>的布尔相反值，来让应用避免调用<code>application(_:, performActionForShortcutItem:, completionHandler:)</code>方法。</p>
+<h3 id="Peek-And-Pop"><a href="#Peek-And-Pop" class="headerlink" title="Peek And Pop"></a>Peek And Pop</h3><p><code>Peek And Pop</code>较<code>Home Screen Quick Actions</code>来说更为复杂，下面我就<code>Peek</code>、<code>Peek quick actions</code>、<code>Pop</code>的实现进行分析。</p>
+<h4 id="Peek-amp-Pop"><a href="#Peek-amp-Pop" class="headerlink" title="Peek &amp; Pop"></a>Peek &amp; Pop</h4><p>实现<code>Peek</code>和<code>Pop</code>首先我们要关注协议<code>UIViewControllerPreviewingDelegate</code>，它有两个需要我们去实现的方法：</p>
+<ul>
+<li><p><strong>previewingContext(_:, viewControllerForLocation:) -&gt; UIViewController</strong></p>
+<p>  <code>Peek</code>就是用户用力按压屏幕某个地方时，周围变得模糊，然后随着按压的力度加强，最后会有一个预览视图弹出。举个例子，屏幕上有一个<code>TableView</code>，当我们手指按压其中某个<code>Cell</code>时，<code>Cell</code>的周围就会变得模糊，然后关于这个<code>Cell</code>的预览视图就出现了。这个方法就是用于配置此过程中的相关逻辑，并返回最终的预览视图所属的视图控制器。在这个方法中，我们需要配置一些东西：</p>
+<ol>
+<li><code>previewingContext</code>参数中的<code>sourceRect</code>。这是一个<code>CGSize</code>类型，我们要将手指所按压的视图控件的<code>frame</code>赋值给它，从而让系统精确将视图控件的周围模糊掉；如何获取被按压的视图控件呢？方法的<code>viewControllerForLocation</code>参数就是当用户用力按压时手指的按压点，我们可以利用这个按压点来找到包含此点的视图控件。</li>
+<li>详情视图控制器的创建、预览尺寸设置以及返回。在这个方法里，我们得实例化我们要预览时展现出来的详情视图控制器，并且利用<code>preferredContentSize</code>设置它的预览大小，这是一个<code>CGSize</code>类型，当我们把长宽都设置为<code>0.0</code>的时候，预览视图大小就会采用系统默认的尺寸值。</li>
+</ol>
+</li>
+<li><p><strong>previewingContext(_:, commitViewController:)</strong></p>
+<p>  <code>Pop</code>操作就是在这个方法里执行，在前面已经说到，<code>Pop</code>其实就是我们传统情况下点击控件然后应用跳出详情视图控制器这一过程，所以，在这里我们需要做的就是把详情视图控制器展现出来。方法中的<code>commitViewController</code>参数就是我们在前面方法中返回的详情视图控制器，我们在这个方法中将其”Show”出来即可。</p>
+</li>
+</ul>
+<p>下面就是参考的代码：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  MARK: - UIViewControllerPreviewingDelegate</span></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">ViewController</span>: <span class="title">UIViewControllerPreviewingDelegate</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">previewingContext</span><span class="params">(previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint)</span></span> -&gt; <span class="type">UIViewController</span>? &#123;</span><br><span class="line">        <span class="keyword">guard</span> <span class="keyword">let</span> indexPath = <span class="keyword">self</span>.tableView.indexPathForRowAtPoint(location) <span class="keyword">else</span> &#123; <span class="keyword">return</span> <span class="literal">nil</span> &#125;</span><br><span class="line">        <span class="keyword">let</span> selectedCellFrame = tableView.cellForRowAtIndexPath(indexPath)!.frame</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">let</span> detailViewController = <span class="type">DetailViewController</span>()</span><br><span class="line">        detailViewController.mainTitle = <span class="keyword">self</span>.tableViewData[indexPath.row]</span><br><span class="line">        detailViewController.preferredContentSize = <span class="type">CGSize</span>(width: <span class="number">0.0</span>, height: <span class="number">350</span>)</span><br><span class="line">        </span><br><span class="line">        previewingContext.sourceRect = selectedCellFrame</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> detailViewController</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">previewingContext</span><span class="params">(previewingContext: UIViewControllerPreviewing, commitViewController viewControllerToCommit: UIViewController)</span></span> &#123;</span><br><span class="line">        <span class="keyword">self</span>.showViewController(viewControllerToCommit, sender: <span class="keyword">self</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当我们实现了<code>UIViewControllerPreviewingDelegate</code>协议后，我们就可以为视图控制器注册<code>Peek</code>预览了，不过，在注册的时候一定要先判断好设备的<code>3D Touch</code>是否可用：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  MARK: - Setup 3D Touch</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">self</span>.traitCollection.forceTouchCapability == .<span class="type">Available</span> &#123;</span><br><span class="line">            <span class="keyword">self</span>.registerForPreviewingWithDelegate(<span class="keyword">self</span>, sourceView: <span class="keyword">self</span>.tableView)</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">"3D Touch 不可用!"</span>)</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<p>这里我们使用<code>UIViewController</code>中的方法<code>registerForPreviewingWithDelegate(_:, sourceView:)</code>来进行<code>Peek</code>注册，方法第一个传入的参数就是实现了<code>UIViewControllerPreviewingDelegate</code>的实例，第二个参数就是手指按压的监听视图。</p>
+<h4 id="Peek-quick-actions"><a href="#Peek-quick-actions" class="headerlink" title="Peek quick actions"></a>Peek quick actions</h4><p><code>Peek</code>的快速操作是在详情视图控制器中实现的，我们只需重写这个视图控制器的<code>previewActionItems() -&gt; [UIPreviewActionItem]</code>方法，返回一个数组即可。<br><code>UIPreviewActionItem</code>为一个协议，一般我们需要创建的是<code>UIPreviewAction</code>或者<code>UIPreviewActionGroup</code>实例。</p>
+<ul>
+<li><strong>UIPreviewAction</strong>就是代表一个选项，它的构造方法为<code>init(title: String, style: UIPreviewActionStyle, handler: (UIPreviewAction, UIViewController) -&gt; Void)</code>，设置的是选项的标题、类型以及选项选择后所需要处理的操作。这里的类型<code>UIPreviewActionStyle</code>有三种，分别是<code>默认</code>类型、<code>已选择</code>类型（旁边有一个勾）、<code>取消</code>类型（标题颜色为红色）。</li>
+<li><strong>UIPreviewActionGroup</strong>是一个<code>UIPreviewAction</code>的分组，它的构造方法为<code>init(title: String, style: UIPreviewActionStyle, actions: [UIPreviewAction])</code>，传入的参数为标题以及组成这个小组的<code>UIPreviewAction</code>成员数组。它的作用是当我们点击这个小组选项时，它就会将自己的成员选项们展开并呈现出来。</li>
+</ul>
+<p>这里提供参考代码：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">    <span class="keyword">private</span> <span class="built_in">lazy</span> <span class="keyword">var</span> previewActions: [<span class="type">UIPreviewActionItem</span>] = &#123;</span><br><span class="line">        <span class="keyword">let</span> action1 = <span class="type">UIPreviewAction</span>(title: <span class="string">"分享"</span>, style: .<span class="type">Default</span>, handler: &#123; action, viewController <span class="keyword">in</span></span><br><span class="line">            <span class="built_in">print</span>(<span class="string">"Peek quick actions- 分享"</span>)</span><br><span class="line">        &#125;)</span><br><span class="line">        <span class="keyword">let</span> action2 = <span class="type">UIPreviewAction</span>(title: <span class="string">"搜索"</span>, style: .<span class="type">Default</span>, handler: &#123; action, viewController <span class="keyword">in</span></span><br><span class="line">            <span class="built_in">print</span>(<span class="string">"Peek quick actions- 搜索"</span>)</span><br><span class="line">        &#125;)</span><br><span class="line">        <span class="keyword">let</span> action3 = <span class="type">UIPreviewActionGroup</span>(title: <span class="string">"更多"</span>, style: .<span class="type">Default</span>, actions: [action1, action2])</span><br><span class="line">        <span class="keyword">return</span> [action1, action2, action3]</span><br><span class="line">    &#125;()</span><br><span class="line"></span><br><span class="line"><span class="comment">//  MARK: - Setup PreviewActionItems</span></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">previewActionItems</span><span class="params">()</span></span> -&gt; [<span class="type">UIPreviewActionItem</span>] &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.previewActions</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>应用运行的效果图如下：<br><img src="http://7xsfp9.com1.z0.glb.clouddn.com/peekandPop.png?imageView/2/w/310/q/9" alt=""></p>
+<h3 id="3D-Touch的其他API"><a href="#3D-Touch的其他API" class="headerlink" title="3D Touch的其他API"></a>3D Touch的其他API</h3><p>苹果为<code>3D Touch</code>提供了<code>Force Properties</code>（按压强度属性），我们可以在<code>UITouch</code>类中找到属性<code>force</code>和<code>maximumPossibleForce</code>，分别代表瞬时按压力度以及设备最大可能达到的按压力度，我们可以利用这两个属性完成很多有趣的交互，这就要看大家的想象力了，在这里我就举一个简单的小例子：</p>
+<p>我编写了一个<code>UIView</code>的子类，它的大小由我们手指按压它的力度去决定，这是它的内部代码：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ResizeableView</span>: <span class="title">UIView</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">touchesMoved</span><span class="params">(touches: Set&lt;UITouch&gt;, withEvent event: UIEvent?)</span></span> &#123;</span><br><span class="line">        <span class="keyword">var</span> multiple: <span class="type">CGFloat</span> = <span class="number">0.0</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> force = touches.first?.force, <span class="keyword">let</span> maximumPossibleForce = touches.first?.maximumPossibleForce &#123;</span><br><span class="line">            multiple = force / maximumPossibleForce</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">self</span>.transform = <span class="type">CGAffineTransformMakeScale</span>(<span class="number">1</span> + multiple, <span class="number">1</span> + multiple)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在我在一个视图控制器中创建它的一个实例，并添加到控制器的视图中，然后随便设置一个<code>frame</code>给它：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TouchViewController</span>: <span class="title">UIViewController</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> mViewSizeValue: <span class="type">CGFloat</span> = <span class="number">70.0</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">lazy</span> <span class="keyword">var</span> mView: <span class="type">ResizeableView</span> = &#123;</span><br><span class="line">        <span class="keyword">let</span> view = <span class="type">ResizeableView</span>()</span><br><span class="line">        view.backgroundColor = <span class="type">UIColor</span>.redColor()</span><br><span class="line">        <span class="keyword">return</span> view</span><br><span class="line">    &#125;()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">viewDidLoad</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.viewDidLoad()</span><br><span class="line">        <span class="keyword">self</span>.view.addSubview(<span class="keyword">self</span>.mView)</span><br><span class="line">        <span class="keyword">self</span>.mView.frame = <span class="type">CGRectMake</span>(<span class="number">100</span>, <span class="number">200</span>, mViewSizeValue, mViewSizeValue)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>于是乎，一个利用简单的利用<code>force</code>和<code>maximumPossibleForce</code>属性的小例子就做出来了。我们运行一下看看效果：<br><img src="http://7xsfp9.com1.z0.glb.clouddn.com/force.gif" alt=""></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这篇文章向大家介绍了<code>3D Touch</code>的特性，并详细讲解了有关于<code>3D Touch</code>开发API的使用。相关代码我已经发布到个人的GitHub上：<a href="https://github.com/TangentW/Tan3DTouch" target="_blank" rel="external">Tan3DTouch</a>。<br>感谢大家的阅读，在这里也祝大家夏日愉快！</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>苹果官方文档：<br><a href="https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/Adopting3DTouchOniPhone/" target="_blank" rel="external">Adopting 3D Touch on iPhone</a><br><a href="https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/MobileHIG/3DTouch.html#//apple_ref/doc/uid/TP40006556-CH71-SW1" target="_blank" rel="external">iOS Human Interface Guidelines: 3D Touch</a></p>
+<p>苹果官方参考项目：<br><a href="https://developer.apple.com/library/ios/samplecode/ApplicationShortcuts/Introduction/Intro.html#//apple_ref/doc/uid/TP40016545" target="_blank" rel="external">ApplicationShortcuts: Using UIApplicationShortcutItem</a><br><a href="https://developer.apple.com/library/ios/samplecode/ViewControllerPreviews/Introduction/Intro.html#//apple_ref/doc/uid/TP40016546" target="_blank" rel="external">ViewControllerPreviews: Using the UIViewController previewing APIs</a></p>
+
+    
+  </div>
+</article>
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal-one" aria-hidden="true">
+  <a href="#close" class="cover" aria-hidden="true"></a>
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <a href="#close" class="btn-close" aria-hidden="true">关闭</a>
+    </div>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/category/"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/project/"
+              target="_self"
+              >
+              项目
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'tangentgift';
+    
+    var disqus_url = 'http://yoursite.com/2016/06/04/iOS-3D-Touch-特性-API-详解/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+
+  <script id="dsq-count-scr" src="//tangentgift.disqus.com/count.js" async></script>
+
+
+
+    
+
+
+
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?398', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
