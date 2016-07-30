@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+
+  <html class="light">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>iOS-R.Swift | iOS高效资源引用框架探究 | Tangent</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="iOS,Swift," />
+  
+
+  <meta name="description" content="前言Android中的资源引用 &amp;amp; “R”在接触iOS开发之前，我也曾搞过一段时间的Android开发。在Android开发中，其对于资源的引用非常方便，我们可以通过”R机制”来对Android中的图片(Drawable)、布局(Layout)、动画配置(Anim)、国际化字符串(String)、尺寸(Dimen)等等资源进行非常方便快捷的引用。什么是R机制？在我们创建一个Android项">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS-R.Swift | iOS高效资源引用框架探究">
+<meta property="og:url" content="http://yoursite.com/2016/07/31/iOS-R-Swift-iOS高效资源引用框架探究/index.html">
+<meta property="og:site_name" content="Tangent">
+<meta property="og:description" content="前言Android中的资源引用 &amp;amp; “R”在接触iOS开发之前，我也曾搞过一段时间的Android开发。在Android开发中，其对于资源的引用非常方便，我们可以通过”R机制”来对Android中的图片(Drawable)、布局(Layout)、动画配置(Anim)、国际化字符串(String)、尺寸(Dimen)等等资源进行非常方便快捷的引用。什么是R机制？在我们创建一个Android项">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/rswift_color.png">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/rswift_mycolor.png">
+<meta property="og:updated_time" content="2016-07-30T19:54:23.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS-R.Swift | iOS高效资源引用框架探究">
+<meta name="twitter:description" content="前言Android中的资源引用 &amp;amp; “R”在接触iOS开发之前，我也曾搞过一段时间的Android开发。在Android开发中，其对于资源的引用非常方便，我们可以通过”R机制”来对Android中的图片(Drawable)、布局(Layout)、动画配置(Anim)、国际化字符串(String)、尺寸(Dimen)等等资源进行非常方便快捷的引用。什么是R机制？在我们创建一个Android项">
+<meta name="twitter:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/rswift_color.png">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  
+  <link href="/css/styles.css?v=5f7f1d39" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?0e70ef65f0d3c8a1e0d427edc322fc77";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+</head>
+
+<body>
+
+  
+    <a href="#modal-one" class="toolbox-mobile">盒子</a>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/project/"
+            target="_self"
+            >
+            项目
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Android中的资源引用-amp-“R”"><span class="toc-text">Android中的资源引用 & “R”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#iOS中的资源引用"><span class="toc-text">iOS中的资源引用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#R-Swift-什么东东？"><span class="toc-text">R.Swift? 什么东东？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#R-Swift的安装配置"><span class="toc-text">R.Swift的安装配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#R-Swift的使用"><span class="toc-text">R.Swift的使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Image-图片"><span class="toc-text">Image - 图片</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#File-数据文件"><span class="toc-text">File - 数据文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Font-字体"><span class="toc-text">Font - 字体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Color-颜色"><span class="toc-text">Color - 颜色</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Color-Palette"><span class="toc-text">Color Palette</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Nib"><span class="toc-text">Nib</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#UITableView中的复用"><span class="toc-text">UITableView中的复用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#运行时检测"><span class="toc-text">运行时检测</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#相关链接"><span class="toc-text">相关链接</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#R-Swift的Github地址"><span class="toc-text">R.Swift的Github地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考资料"><span class="toc-text">参考资料</span></a></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-iOS-R-Swift-iOS高效资源引用框架探究" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">iOS-R.Swift | iOS高效资源引用框架探究</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2016.07.31</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>Tangent 汤骏炜</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/iOS/">iOS</a>
+  </span>
+
+
+
+      
+        <span>
+          <i class="icon-comment"></i>
+          <a href="http://tangent.gift/2016/07/31/iOS-R-Swift-iOS高效资源引用框架探究/#disqus_thread"></a>
+        </span>
+      
+
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h3 id="Android中的资源引用-amp-“R”"><a href="#Android中的资源引用-amp-“R”" class="headerlink" title="Android中的资源引用 &amp; “R”"></a>Android中的资源引用 &amp; <em>“R”</em></h3><p>在接触<code>iOS</code>开发之前，我也曾搞过一段时间的<code>Android</code>开发。在Android开发中，其对于资源的引用非常方便，我们可以通过”<code>R</code>机制”来对Android中的图片(Drawable)、布局(Layout)、动画配置(Anim)、国际化字符串(String)、尺寸(Dimen)等等资源进行非常方便快捷的引用。什么是<code>R机制</code>？在我们创建一个Android项目的时候，IDE会自动帮我们创建一个名为<code>R</code>的类型，它所在的文件名称也是叫做<code>R.java</code>，<code>R</code>类型中没有任何方法，包含的是代表不同类型资源的内部静态类，而这些内部静态类中，也只有静态的属性，每个属性代表一个资源，故我们要引用某个资源类型中的某个资源，可用<code>R.资源类型.资源名</code>来引用。下面就是代码中的实例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  在Activity中设置其自己的视图布局</span></span><br><span class="line">RootActivity.<span class="keyword">this</span>.setContentView(R.layout.activity_root);</span><br><span class="line"></span><br><span class="line"><span class="comment">//  从图片资源文件夹中加载名为"image_test"的图片以其创建位图</span></span><br><span class="line">Bitmap aBitmap = BitmapFactory.decodeResource(<span class="keyword">this</span>.getResources(), R.drawable.image_test);</span><br><span class="line"></span><br><span class="line"><span class="comment">//  以id为基准找到某个视图控件</span></span><br><span class="line"><span class="keyword">this</span>.showTextView = (TextView)<span class="keyword">this</span>.findViewById(R.id.show_text_view);</span><br></pre></td></tr></table></figure>
+<p>巧妙的是，我们无需对<code>R</code>类进行任何的修改或定义，IDE会帮我们自动完成：当我们把一张图片复制入<code>drawable</code>文件夹中，<code>R</code>类的<code>drawable</code>内部类会自动声明并定义了一个名字与图片相同的静态属性，属性的类型为<code>int</code>，用于对资源的唯一标识，同样的，当我们创建一个<code>layout</code>布局文件，或者在定义<code>color</code>、<code>dimens</code>、<code>string</code>的<code>xml</code>配置文件中新增新配置资源，IDE都会根据资源的改变自动配置<code>R</code>类。</p>
+<h3 id="iOS中的资源引用"><a href="#iOS中的资源引用" class="headerlink" title="iOS中的资源引用"></a>iOS中的资源引用</h3><p>当我从Android转至iOS后，我瞬间觉得iOS的资源引用略为恶心，跟Android比起来，它更加蛋疼麻烦，举几个例子:</p>
+<ol>
+<li><p>我现在Assets图片库中有一张图片，名为<em>image_test</em>，好，我现在要创建一个<code>UIImage</code>对象，让其解码这张图片。代码是这样子的：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> aImage = <span class="type">UIImage</span>(named: <span class="string">"image_test"</span>)</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>在这里，我使用的<code>UIImage</code>构造方法需要传入一个字符串参数，这个字符串要求为图片的名字。在调用这个构造方法的时候，我的心里有股蛋蛋的忧伤… what? 我要自己输入一个字符串，才能构造出这个实例？就算我不手打，直接复制图片名字也好，我还要跳到Finder或者Assets中“Command + C”再回到代码区中“Command + V”，不仅如此，<code>UIImage(named:)</code>构造方法所返回的类型是<code>Optional</code>类型，原因是我在输入图片名字构造的时候可能误将名字打错了，又或者图片在之前不小心被我删除了，Swift不能保证构造出的<code>UIImage</code>一定非空… 略坑😑</p>
+<ol>
+<li><p>很多时候，我们会用到<code>Nib</code>来自定义一个视图，比如<code>UITableViewCell</code>；当我们在<code>Nib</code>中布局配置好视图后，我们就需要在代码区中引用它，下面就是<code>UITableView</code>注册一个以<code>Nib</code>构建的Cell的例子：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">let</span> tableView = <span class="type">UITableView</span>(frame: <span class="type">CGRectZero</span>, style: .<span class="type">Plain</span>)</span><br><span class="line">tableView.registerNib(<span class="type">UINib</span>(nibName: <span class="string">"TanTableViewCell"</span>, bundle: <span class="literal">nil</span>), forCellReuseIdentifier: <span class="type">ViewController</span>.<span class="type">CELL_IDENTIFIER</span>)</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>首先我在之前已经创建好了一个名为<em>TanTableViewCell</em>的<code>Nib</code>，然后我们在为UITableViewC注册Cell的时候，则需要以我们创建的Cell的<code>Nib</code>文件名字符串为参数传入<code>UINib</code>的构造方法中。这里的问题跟上面所说的创建<code>UIImage</code>一样，使用字符串作为参数构建某些资源实例时，效率会较为低下，并且由于输入的错误，最终或许会导致实例无法构建，这是iOS开发API中一处蛋疼的地方。</p>
+<h2 id="R-Swift-什么东东？"><a href="#R-Swift-什么东东？" class="headerlink" title="R.Swift? 什么东东？"></a>R.Swift? 什么东东？</h2><p>根据前言中关于Android资源引用的内容，顾名思义，<code>R.Swift</code>是一款基于Swift平台，针对<code>iOS</code>以及<code>TVOS</code>开发的仿<code>Android</code>资源引用框架。它所针对的问题，就是类似于刚刚我在上方提到的一样，避免使用字符串来构造某些资源实例。<code>R.Swift</code>能够在我们修改项目资源后动态地进行配置，最终，你能够使用类似语法<code>R.资源类型.资源名称</code>来对某资源进行引用构建。<code>R.Swift</code>有着动态生成代码的机制，由此，它具有以下极具魅力的优点：</p>
+<ul>
+<li><strong>代码自动补全</strong> ：就像输入其他的代码一样，<code>R.Swift</code>支持IDE的代码自动补全，当你的资源量非常庞大时，你只需把资源调用语法的前沿部分敲出来，IDE就会自动给予代码提示以及补全，这对资源的引用效率有着显著的提高。</li>
+<li><strong>自动检测</strong> ： 当我们写入某些错误的代码时，IDE会向我们反馈错误以及警告，如我们调用某个类中不存在的方法时，IDE就会立即检测出代码的错误，并给予反馈。在<code>R.Swift</code>中，若我们将资源重命名，或干脆将资源删除了，<code>R.Swift</code>会自动重新进行配置，而在之前我们对该资源进行引用的地方，IDE也会相应的向我们报错，表明资源的不存在，如此一来，我们就不必担心资源的修改删除对代码的蝴蝶效应了。</li>
+</ul>
+<p>总之一句话，<code>R.Swift</code>猴犀利！</p>
+<h2 id="R-Swift的安装配置"><a href="#R-Swift的安装配置" class="headerlink" title="R.Swift的安装配置"></a>R.Swift的安装配置</h2><p>在这里我们使用的是<code>CocoaPods</code>来对<code>R.Swift</code>进行安装，相关的步骤也不必累赘说明，一句<code>pod install</code>后我们把<code>R.Swift</code>安装进来了。下面要进行<code>R.Swift</code>的配置，主要有几个步骤：</p>
+<ol>
+<li>进入项目的配置界面，在左边的<code>TARGETS</code>项下面选择我们的项目，并在右边点击<code>Build Phases</code>这个tab。</li>
+<li>进入<code>Build Phases</code>这个tab后，我们看到左上角有一个”+”按钮，点击并在弹出的选项卡中选择<code>New Run Script Phase</code>。</li>
+<li>我们会看到界面的下方多出了一个<code>Run Script</code>项，展开它，并在脚本输入区域输入<code>&quot;$PODS_ROOT/R.swift/rswift&quot; &quot;$SRCROOT&quot;</code> (第二对双引号括起来所代码的是项目的根目录，你也可以放到根目录下的其他目录中，只需将其修改为<code>&quot;$SRCROOT/XXX&quot;</code>，XXX为目标目录名)。</li>
+<li>我们按住新建的这个<code>Run Script</code>项向上移动，移到<code>Compile Source</code>项的上方，不过也要保证此时它也在<code>Check Pods Manifest.lock</code>项的下方。</li>
+<li><code>Command + B</code>，编译一下，编译成功后，在Finder进入到刚刚我们制定的目录中，此时我们会看到一个名为<code>R.generated.swift</code>的文件已经创建了，直接把此文件拖入Xcode项目中，记住不要勾选<code>Copy items if needed</code>项。</li>
+<li>配置到此完成，我们可以构建自己的项目了</li>
+</ol>
+<hr>
+<p><code>R.Swift</code>对资源修改并编译后都会在<code>R.generated.swift</code>文件中自动生成代码，我们也可以打开这个文件看一下现在资源的构造情况，这里只截了一小段代码展示：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// This `R.font` struct is generated, and contains static references to 0 fonts.</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">font</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">init</span>() &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// This `R.image` struct is generated, and contains static references to 1 images.</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">image</span> </span>&#123;</span><br><span class="line">  <span class="comment">/// Image `kafei`.</span></span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">let</span> kafei = <span class="type">ImageResource</span>(bundle: _R.hostingBundle, name: <span class="string">"kafei"</span>)</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/// `UIImage(named: "kafei", bundle: ..., traitCollection: ...)`</span></span><br><span class="line">  <span class="keyword">static</span> <span class="function"><span class="keyword">func</span> <span class="title">kafei</span><span class="params">(compatibleWithTraitCollection traitCollection: UITraitCollection? = <span class="literal">nil</span>)</span></span> -&gt; <span class="type">UIImage</span>? &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="type">UIImage</span>(resource: <span class="type">R</span>.image.kafei, compatibleWithTraitCollection: traitCollection)</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">init</span>() &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// This `R.nib` struct is generated, and contains static references to 1 nibs.</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">nib</span> </span>&#123;</span><br><span class="line">  <span class="comment">/// Nib `TanTableViewCell`.</span></span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">let</span> tanTableViewCell = _R.nib._TanTableViewCell()</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/// `UINib(name: "TanTableViewCell", bundle: ...)`</span></span><br><span class="line">  <span class="keyword">static</span> <span class="function"><span class="keyword">func</span> <span class="title">tanTableViewCell</span><span class="params">(<span class="number">_</span>: Void)</span></span> -&gt; <span class="type">UINib</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="type">UINib</span>(resource: <span class="type">R</span>.nib.tanTableViewCell)</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">init</span>() &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="R-Swift的使用"><a href="#R-Swift的使用" class="headerlink" title="R.Swift的使用"></a>R.Swift的使用</h2><p>在这里要说明一下，每当我们修改了资源，我们需要<code>Command + B</code>来编译一下项目从而让<code>R.Swift</code>自动进行配置更新。</p>
+<hr>
+<p>下面就来用实例演示一下<code>R.Swift</code>的使用，并与原生的API进行比对：</p>
+<h3 id="Image-图片"><a href="#Image-图片" class="headerlink" title="Image - 图片"></a>Image - 图片</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  不使用R.Swift</span></span><br><span class="line"><span class="keyword">let</span> pImage = <span class="type">UIImage</span>(named: <span class="string">"image_test"</span>)</span><br><span class="line"><span class="comment">//  使用R.Swift</span></span><br><span class="line"><span class="keyword">let</span> nImage = <span class="type">R</span>.image.image_test()</span><br></pre></td></tr></table></figure>
+<h3 id="File-数据文件"><a href="#File-数据文件" class="headerlink" title="File - 数据文件"></a>File - 数据文件</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  不使用R.Swift</span></span><br><span class="line"><span class="keyword">let</span> pFile = <span class="type">NSBundle</span>.mainBundle().pathForResource(<span class="string">"DataFile"</span>, ofType: <span class="string">"json"</span>)</span><br><span class="line"><span class="comment">//  使用R.Swift</span></span><br><span class="line"><span class="keyword">let</span> nFile = <span class="type">R</span>.file.dataFileJson.path()</span><br></pre></td></tr></table></figure>
+<h3 id="Font-字体"><a href="#Font-字体" class="headerlink" title="Font - 字体"></a>Font - 字体</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  不使用R.Swift</span></span><br><span class="line"><span class="keyword">let</span> pFont = <span class="type">UIFont</span>(name: <span class="string">"chalkduster"</span>, size: <span class="number">35</span>)</span><br><span class="line"><span class="comment">//  使用R.Swift</span></span><br><span class="line"><span class="keyword">let</span> nFont = <span class="type">R</span>.font.chalkduster(size: <span class="number">35</span>)</span><br><span class="line"><span class="comment">//  你看，非常神奇，在上面的方法中你不仅可以选择字体类型，还能设置字体大小</span></span><br></pre></td></tr></table></figure>
+<h3 id="Color-颜色"><a href="#Color-颜色" class="headerlink" title="Color - 颜色"></a>Color - 颜色</h3><p>颜色这里我觉得有必要细讲一下，一个较为庞大的项目，其颜色资源配置也是相应比较复杂，如某些视图的背景颜色、字体的颜色等等，以往我们进行颜色资源的配置，一般会定义一个全局的Config文件或类，里面就存有各种颜色，每种颜色用有意义的名称去标识。<code>R.Swift</code>与其不同的是，它还能有更赞的方式导入颜色资源：</p>
+<h4 id="Color-Palette"><a href="#Color-Palette" class="headerlink" title="Color Palette"></a>Color Palette</h4><p>呵呵，这个方式可以说是非常的花式，配合<code>R.Swift</code>使用起来简直6得飞起！<br>当我们在可视化视图编辑界面（如Storyboard）中为一个视图配置某些颜色时，我们可以进入颜色调色板来选择更多的颜色，如图：<br><img src="http://7xsfp9.com1.z0.glb.clouddn.com/rswift_color.png" alt="调色板"><br>在其中，我们可以创建自己的调色板，如现在我创建了一个名为<code>MyAppColor</code>的调色板：<br><img src="http://7xsfp9.com1.z0.glb.clouddn.com/rswift_mycolor.png" alt="自定义调色板"><br>这个自定义的调色板是不局限于现在的项目，以后我们创建的每一个项目都可以使用这个调色板。如果你的UI设计师够醒目的话，他也可以给我们提供一个设计师调好颜色的调色板，现在问题来了，设计师在他的电脑里定义好了调色板，怎么share出去呢？其实我们每自定义一个调色板，它都会以二进制文件的形式储存在电脑中，位置在<code>~/Library/Colors/</code>（隐藏文件目录，要访问它要不取消Finder隐藏，要不直接控制台<code>open</code>跳进来），文件的名字为<code>调色板名.clr</code>，把它直接copy下来就行。<br><code>R.Swift</code>能够非常花式地使用调色板，有多花式？<br>就现在来说，我直接把我创建的调色板的文件<code>MyAppColor.clr</code>拖进项目中，<code>Command + B</code>编译下，然后，我现在可以这样子得到颜色了：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> appRedColor = <span class="type">R</span>.color.myAppColor.red()</span><br></pre></td></tr></table></figure>
+<p>简直6到飞起！🌚</p>
+<h3 id="Nib"><a href="#Nib" class="headerlink" title="Nib"></a>Nib</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  不使用R.Swift</span></span><br><span class="line">tableView.registerNib(<span class="type">UINib</span>(nibName: <span class="string">"TanTableViewCell"</span>, bundle: <span class="literal">nil</span>), forCellReuseIdentifier: <span class="type">CELL_IDENTIFIER</span>)</span><br><span class="line"><span class="comment">//  使用R.Swift</span></span><br><span class="line">tableView.registerNib(<span class="type">R</span>.nib.tanTableViewCell(), forCellReuseIdentifier: <span class="type">CELL_IDENTIFIER</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="UITableView中的复用"><a href="#UITableView中的复用" class="headerlink" title="UITableView中的复用"></a>UITableView中的复用</h3><p>上面的代码让TableView注册了其cell所属的Nib，并输入了cell的复用标识符，而在另一种情况下，比如我们在设计cell的Nib时已经在Nib中设置好了cell的复用标识符，我们就没必要在TableView注册cell的时候再配置一遍了，幸亏,<code>R.Swift</code>给我们提供了高效率的cell注册以及复用方法：</p>
+<ol>
+<li>首先在Cell的Nib中设置好复用标识符(Identifier)</li>
+<li><p>进行Cell的注册</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">tableView.registerNib(<span class="type">R</span>.nib.tanTableViewCell)</span><br><span class="line">```	</span><br><span class="line"><span class="number">3</span>. 编写<span class="type">TableView</span>数据源的<span class="type">Cell</span>返回方法</span><br><span class="line"></span><br><span class="line">```<span class="type">Swift</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">tableView</span><span class="params">(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath)</span></span> -&gt; <span class="type">UITableViewCell</span> &#123;</span><br><span class="line">	<span class="keyword">let</span> cell = tableView.dequeueReusableCellWithIdentifier(<span class="type">R</span>.nib.tanTableViewCell.identifier, forIndexPath: indexPath)</span><br><span class="line">	<span class="comment">//  Do Something</span></span><br><span class="line">	<span class="keyword">return</span> cell</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p><code>R.Swift</code>也支持对<code>UICollectionView</code>中Cell的高效注册与复用，方式跟<code>UITableView</code>也是差不多，在这里就不累赘说明了。</p>
+<hr>
+<p>以上说明了使用<code>R.Swift</code>进行各种资源的引用构造，除了上面的资源外，<code>R.Swift</code>还能作用于<code>Localized string(本地化字符串)</code>、<code>Storyboards</code>、<code>Segues</code>这些资源，其大大提高了iOS开发的资源引用构造效率。</p>
+<h3 id="运行时检测"><a href="#运行时检测" class="headerlink" title="运行时检测"></a>运行时检测</h3><p><code>R.Swift</code>提供运行时检测功能，在项目运行的时候能够检测其生成的代码是否和此时项目的资源完全匹配，调用的是<code>R.assertValid()</code>，这个方法在<code>release</code>模式下是不做任何操作的，它只作用于<code>debug(调试)</code>模式，检测的内容为：</p>
+<ul>
+<li>是否所有在<code>Storyboard</code>中使用的图片都可用。</li>
+<li>是否所有定义在<code>Storyboard</code>中，且需要用标识符去加载的视图控制器都能够成功加载。<br>官方建议把这个检测方法放到项目的<code>AppDelegate</code>中。</li>
+</ul>
+<h2 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h2><h3 id="R-Swift的Github地址"><a href="#R-Swift的Github地址" class="headerlink" title="R.Swift的Github地址"></a>R.Swift的Github地址</h3><p><a href="https://github.com/mac-cain13/R.swift" target="_blank" rel="external">Github - R.Swift</a></p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://github.com/mac-cain13/R.swift/tree/master/Documentation" target="_blank" rel="external">R.Swift官方说明文档</a></p>
+
+    
+  </div>
+</article>
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal-one" aria-hidden="true">
+  <a href="#close" class="cover" aria-hidden="true"></a>
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <a href="#close" class="btn-close" aria-hidden="true">关闭</a>
+    </div>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/category/"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/project/"
+              target="_self"
+              >
+              项目
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'tangentgift';
+    
+    var disqus_url = 'http://yoursite.com/2016/07/31/iOS-R-Swift-iOS高效资源引用框架探究/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+
+  <script id="dsq-count-scr" src="//tangentgift.disqus.com/count.js" async></script>
+
+
+
+    
+
+
+
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?398', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

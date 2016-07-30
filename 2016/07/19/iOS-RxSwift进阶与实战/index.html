@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+
+
+  <html class="light">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>iOS-RxSwift进阶与实战 | Tangent</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="iOS,Swift,MVVM,Rx," />
+  
+
+  <meta name="description" content="前言在之前用Objective-C语言做项目的时候，我习惯性的会利用MVVM模式去架构项目，在框架ReactiveCocoa的帮助协同下，MVVM架构能够非常优雅地融合与项目中。
+ReactiveCocoa是具有响应式以及函数式编程特点的第三方开源框架，它可以在MVVM架构模式中充当着View（视图）层与ViewModel（视图模型）层之间的Binder（绑定者）角色，实现两个层之间的同步更新。在">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS-RxSwift进阶与实战">
+<meta property="og:url" content="http://yoursite.com/2016/07/19/iOS-RxSwift进阶与实战/index.html">
+<meta property="og:site_name" content="Tangent">
+<meta property="og:description" content="前言在之前用Objective-C语言做项目的时候，我习惯性的会利用MVVM模式去架构项目，在框架ReactiveCocoa的帮助协同下，MVVM架构能够非常优雅地融合与项目中。
+ReactiveCocoa是具有响应式以及函数式编程特点的第三方开源框架，它可以在MVVM架构模式中充当着View（视图）层与ViewModel（视图模型）层之间的Binder（绑定者）角色，实现两个层之间的同步更新。在">
+<meta property="og:image" content="https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/Logo/header.png?raw=true">
+<meta property="og:image" content="https://github.com/ReactiveX/RxSwift/blob/master/assets/Rx_Logo_M.png?raw=true">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/rslt1.png">
+<meta property="og:updated_time" content="2016-07-30T19:50:16.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS-RxSwift进阶与实战">
+<meta name="twitter:description" content="前言在之前用Objective-C语言做项目的时候，我习惯性的会利用MVVM模式去架构项目，在框架ReactiveCocoa的帮助协同下，MVVM架构能够非常优雅地融合与项目中。
+ReactiveCocoa是具有响应式以及函数式编程特点的第三方开源框架，它可以在MVVM架构模式中充当着View（视图）层与ViewModel（视图模型）层之间的Binder（绑定者）角色，实现两个层之间的同步更新。在">
+<meta name="twitter:image" content="https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/Logo/header.png?raw=true">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  
+  <link href="/css/styles.css?v=5f7f1d39" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?0e70ef65f0d3c8a1e0d427edc322fc77";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+</head>
+
+<body>
+
+  
+    <a href="#modal-one" class="toolbox-mobile">盒子</a>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/project/"
+            target="_self"
+            >
+            项目
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#进阶讲解"><span class="toc-text">进阶讲解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#bindTo"><span class="toc-text">bindTo</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#UIBindingObserver"><span class="toc-text">UIBindingObserver</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Driver"><span class="toc-text">Driver</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DisposeBag"><span class="toc-text">DisposeBag</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DataSource"><span class="toc-text">DataSource</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#项目实战"><span class="toc-text">项目实战</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#界面"><span class="toc-text">界面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Entity-实体"><span class="toc-text">Entity 实体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ViewModelServer-服务"><span class="toc-text">ViewModelServer 服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ViewModel-视图模型"><span class="toc-text">ViewModel 视图模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ViewController-视图控制器"><span class="toc-text">ViewController 视图控制器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-text">参考资料</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-iOS-RxSwift进阶与实战" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">iOS-RxSwift进阶与实战</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2016.07.19</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>Tangent 汤骏炜</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/iOS/">iOS</a>
+  </span>
+
+
+
+      
+        <span>
+          <i class="icon-comment"></i>
+          <a href="http://tangent.gift/2016/07/19/iOS-RxSwift进阶与实战/#disqus_thread"></a>
+        </span>
+      
+
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在之前用<code>Objective-C</code>语言做项目的时候，我习惯性的会利用<code>MVVM</code>模式去架构项目，在框架<code>ReactiveCocoa</code>的帮助协同下，<code>MVVM</code>架构能够非常优雅地融合与项目中。</p>
+<p><img src="https://github.com/ReactiveCocoa/ReactiveCocoa/blob/master/Logo/header.png?raw=true" alt="ReactiveCocoa&#39;s Logo"><br><strong>ReactiveCocoa</strong>是具有响应式以及函数式编程特点的第三方开源框架，它可以在<code>MVVM</code>架构模式中充当着<code>View（视图）</code>层与<code>ViewModel（视图模型）</code>层之间的<code>Binder（绑定者）</code>角色，实现两个层之间的同步更新。在<code>ReactiveCocoa</code>的世界中，数据与属性的改变、视图的操作反馈、方法的调用等都可以被监听并抽象转换成<em>事件流</em>，封装在<code>Signal（信号）</code>中，我们通过对<code>Signal</code>的<code>Subscribe（订阅）</code>就能获取到其中的事件流，并进行相应的操作。</p>
+<p>近期这段时间，我重新折腾起了<code>Swift</code>。在我刚刚初步掌握<code>Swift</code>语言的时候，也就用它做了一个以<code>MVC</code>为架构模式的较为简单的项目而已，后面写到一半左右就烂尾了，转为用<code>Objective-C</code>去折腾另一个较为庞大的项目。在几天前搞起<code>Swift</code>时，我思考过，有没有一种解决方案能够在<code>Swift</code>中像<code>ReactiveCocoa</code>一样能够优雅地实现<code>MVVM</code>架构呢？查阅相关资料，我了解到<code>ReactiveCocoa</code>也能在<code>Swift</code>环境下使用，也认识了另一个第三方框架 —— <strong>RxSwift</strong>，在对其的学习与实践中，我也越来越中意这货了。</p>
+<p><img src="https://github.com/ReactiveX/RxSwift/blob/master/assets/Rx_Logo_M.png?raw=true" width="45" height="45"> <font size="5"> RxSwift: ReactiveX for Swift</font><br><strong>RxSwift</strong>为<code>ReactiveX（Reactive Extensions）</code>旗下的<code>Swift</code>语言库，提供了<code>Swift</code>平台上进行响应式编程的解决方案。<code>Rx</code>的重要角色为<code>Observable（被观察者）</code>和<code>Observer（观察者）</code>，<code>Observable</code>类似于<code>ReactiveCocoa</code>中的<code>Signal</code>，里面装有<code>事件流</code>，供<code>Observer</code>订阅。<code>事件流</code>在<code>Rx</code>中与<code>ReactiveCocoa</code>一样具有三类：<code>Next</code>、<code>Error</code>、<code>Completed</code>，代表着继续事件、错误事件、完成事件。我们在使用<code>RxSwift</code>进行iOS开发时，通常会引入另外一个库：<code>RxCocoa</code>，这个库将<code>UIKit</code>以及<code>Foundation</code>框架中许多成员，如视图(View)、控制事件(Control Event)、键值观察（KVO）、通知（Notification）等等进行与<code>RxSwift</code>接入的扩展，将<code>Rx</code>与iOS API无缝连接。</p>
+<p>本文主要针对<code>RxSwift</code>阐述它的进阶使用，以及在最后结合<code>MVVM</code>项目实战来巩固知识点。作为一篇总结我自己对<code>RxSwift</code>学习的文章。<br>有关<code>RxSwift</code>的基础教程可前往此项目的GitHub仓库中下载，里面会有个专门介绍基础使用的<code>playground</code>工程文件： <a href="https://github.com/ReactiveX/RxSwift" target="_blank" rel="external">GitHub: RxSwift</a></p>
+<h2 id="进阶讲解"><a href="#进阶讲解" class="headerlink" title="进阶讲解"></a>进阶讲解</h2><h3 id="bindTo"><a href="#bindTo" class="headerlink" title="bindTo"></a>bindTo</h3><p><code>bindTo</code>为<code>ObservableType</code>协议的几个重载方法（<code>Observable</code>也会实现<code>ObservableType</code>协议）。顾名思义，它会将某个东东与一个可观察者进行绑定，也就是说，当这个可观察者的事件流中有事件“流过”（有事件元素发送），被绑定的这个东东就会被刺激到，进而进行相关的操作。</p>
+<p>在这里，有一个用的比较多的是重载方法为<code>bindTo&lt;O : ObserverType where O.E == E&gt;(observer: O) -&gt; Disposable</code>，这个方法有一个参数，从方法泛型的声明中可以得知，参数的类型为一个观察者类型，且这个观察者能够接受到的事件流元素的类型要跟被观察者的一样(O.E == E)。这个方法意图就是将一个被观察者与一个指定的观察者进行绑定，被观察者事件流中发出的所有事件元素都会让观察者接收。<br>在<code>MVVM</code>架构模式中，此方法主要用于视图（View）层跟视图模型（ViewModel）层或视图层跟视图层的绑定，这里举个栗子：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">textField.rx_text</span><br><span class="line">	.bindTo(label.rx_text)</span><br><span class="line">	.addDisposableTo(disposeBag)</span><br></pre></td></tr></table></figure>
+<p><code>其中，UITextField的rx_text属性为ControlProperty类型，实现了ControlPropertyType，所以不仅是观察者类型，还是被观察者类型，UILabel中的rx_text只是单纯的观察者类型。</code></p>
+<p><code>bindTo</code>的另外一个用得比较多的重载方法为：<code>bindTo(variable: RxSwift.Variable&lt;Self.E&gt;) -&gt; Disposable</code>，这个方法将一个被观察者与一个<code>Variable（变量）</code>绑定在一起，这个变量的元素类型跟被观察者的事件元素类型一致。此方法作用就是把从被观察者事件流中发射出的事件元素存入变量中，在这里不做演示。<br>关于<code>bindTo</code>的其他重载方法在这里就不完全阐述了，剩下的主要是用于对函数的绑定（还有针对柯里化的函数）。</p>
+<h3 id="UIBindingObserver"><a href="#UIBindingObserver" class="headerlink" title="UIBindingObserver"></a>UIBindingObserver</h3><p>现在介绍的这个东东就跟上面说的被观察者类型的<code>bindTo</code>方法密切相关了。<br><code>UIBindingObserver</code>，名字就告诉了我们它是一个观察者，用于对UI的绑定，我这里通过一个例子来讲解它：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  MARK: - 绑定方法</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">binding</span><span class="params">()</span></span> &#123;</span><br><span class="line">	textField.rx_text</span><br><span class="line">		.bindTo(label.rx_sayHelloObserver)</span><br><span class="line">		.addDisposableTo(disposeBag)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//  MARK: - 视图控件扩展</span></span><br><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">extension</span> <span class="title">UILabel</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> rx_sayHelloObserver: <span class="type">AnyObserver</span>&lt;<span class="type">String</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="type">UIBindingObserver</span>(<span class="type">UIElement</span>: <span class="keyword">self</span>, binding: &#123; (label, string) <span class="keyword">in</span></span><br><span class="line">            label.text = <span class="string">"Hello \(string)"</span></span><br><span class="line">        &#125;).asObserver()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p> 上面的代码中，我在视图控制器ViewController所在的Swift文件中创建了一个私有的<code>UILabel</code>扩展，并在扩展中定义了一个只读计算属性，属性的类型为<code>AnyObserver&lt;String&gt;</code>，为一个事件元素是<code>String</code>的观察者类型。当获取这个属性值的时候，就返回了与特定<code>UIBindingObserver</code>关联的观察者。<br> 现在我们来看一下<code>UIBindingObserver</code>的构造方法：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">init</span>(<span class="type">UIElement</span>: <span class="type">UIElementType</span>, binding: (<span class="type">UIElementType</span>, <span class="type">Value</span>) -&gt; <span class="type">Void</span>)</span><br></pre></td></tr></table></figure>
+<p> 方法的第一个参数就是传入一个要被绑定的视图的实例，由于现在是在<code>UILabel</code>的扩展中，所以这里我传入了<code>self</code>，代表<code>UILabel</code>自己；构造方法的第二个参数为一个无返回值的闭包类型，闭包的参数其一就是被绑定了的视图，其二就是由绑定的被观察者中所发射出来的事件元素。通过这个闭包，我们能够将视图中的某些属性根据相应的事件元素而进行改变，如例子中<code>label.text = &quot;Hello \(string)&quot;</code>。当我们执行例子中的<code>binding</code>函数进行绑定后，<code>TextField</code>中的字符串每经过修改，<code>Label</code>中的文字总会实时更新，并在字符串前面加上<code>Hello</code>。</p>
+<p> 在<code>RxCocoa</code>框架中，某些地方也用到了<code>UIBindingObserver</code>，如<code>UILable</code>中的<code>rx_text</code>：</p>
+ <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">var</span> rx_text: <span class="type">AnyObserver</span>&lt;<span class="type">String</span>&gt; &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">UIBindingObserver</span>(<span class="type">UIElement</span>: <span class="keyword">self</span>) &#123; label, text <span class="keyword">in</span></span><br><span class="line">		label.text = text</span><br><span class="line">	&#125;.asObserver()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Driver"><a href="#Driver" class="headerlink" title="Driver"></a>Driver</h3><p><code>Driver</code>从名字上可以理解为<code>驱动</code>（我自己会亲切地把它叫做”老司机”），在功能上它类似被观察者（Observable），而它本身也可以与被观察者相互转换（Observable: asDriver, Driver: asObservable），它驱动着一个观察者，当它的事件流中有事件涌出时，被它驱动着的观察者就能进行相应的操作。一般我们会将一个<code>Observable</code>被观察者转换成<code>Driver</code>后再进行驱动操作：</p>
+<p>我们沿用上面例子中的<code>UILabel</code>私有扩展，并修改下<code>binding</code>方法：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">binding</span><span class="params">()</span></span> &#123;</span><br><span class="line">    textField.rx_text</span><br><span class="line">        .asDriver()</span><br><span class="line">        .drive(label.rx_sayHelloObserver)</span><br><span class="line">        .addDisposableTo(disposeBag)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可见，<code>Driver</code>的<code>drive</code>方法与<code>Observable</code>的方法<code>bindTo</code>用法非常相似，事实上，它们的作用也是一样，说白了就是被观察者与观察者的绑定。那为什么<code>RxSwift</code>的作者又搞出<code>Driver</code>这么个东西来呢？<br>其实，比较与<code>Observable</code>，<code>Driver</code>有以下的特性：</p>
+<ul>
+<li>它不会发射出错误(Error)事件</li>
+<li>对它的观察订阅是发生在主线程(UI线程)的</li>
+<li>自带<code>shareReplayLatestWhileConnected</code></li>
+</ul>
+<p>下面就围绕着这三个特性一一研究下：</p>
+<ul>
+<li><p>当你将一个<code>Observable</code>转换成<code>Driver</code>时，用到的<code>asDriver</code>方法有下面几个重载：</p>
+  <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">asDriver(onErrorJustReturn onErrorJustReturn: <span class="type">Self</span>.<span class="type">E</span>)</span><br><span class="line"></span><br><span class="line">asDriver(onErrorDriveWith onErrorDriveWith: <span class="type">RxCocoa</span>.<span class="type">Driver</span>&lt;<span class="type">Self</span>.<span class="type">E</span>&gt;)</span><br><span class="line"></span><br><span class="line">asDriver(onErrorRecover onErrorRecover: (error: <span class="type">ErrorType</span>) -&gt; <span class="type">RxCocoa</span>.<span class="type">Driver</span>&lt;<span class="type">Self</span>.<span class="type">E</span>&gt;)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>从这三个重载方法中可看出，当我们要将有可能会发出错误事件的<code>Observable</code>转换成<code>Driver</code>时，必须要先将所有可能发出的错误事件滤除掉，从而使得<code>Driver</code>不可能会发射出错误的事件。</p>
+<ul>
+<li>在<code>Observable</code>中假如你要进行限流，你要用到方法<code>throttle(dueTime: RxSwift.RxTimeInterval, scheduler: SchedulerType)</code>，方法的第一个参数是两个事件之间的间隔时间，第二个参数是一个线程的有关类，如我要在主线程中，我可以传入<code>MainScheduler.instance</code>。而在<code>Driver</code>中我们要限流，调用的是<code>throttle(dueTime: RxSwift.RxTimeInterval)</code>，只配置事件的间隔时间，而它默认会在主线程中进行。</li>
+<li><p>一般我们在对<code>Observable</code>进行<code>map</code>操作后，我们会在后面加上<code>shareReplay(1)</code>或<code>shareReplayLatestWhileConnected</code>，以防止以后被观察者被多次订阅观察后，<code>map</code>中的语句会多次调用：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">let</span> rx_textChange = textField.rx_text</span><br><span class="line">		.<span class="built_in">map</span> &#123; <span class="keyword">return</span> <span class="string">"Good \($0)"</span> &#125;</span><br><span class="line">		.shareReplay(<span class="number">1</span>)</span><br><span class="line">rx_textChange</span><br><span class="line">		.subscribeNext &#123; <span class="built_in">print</span>(<span class="string">"1 -- \($0)"</span>) &#125;</span><br><span class="line">		.addDisposableTo(disposeBag)</span><br><span class="line">rx_textChange</span><br><span class="line">		.subscribeNext &#123; <span class="built_in">print</span>(<span class="string">"2 -- \($0)"</span>) &#125;</span><br><span class="line">		.addDisposableTo(disposeBag)</span><br></pre></td></tr></table></figure>
+<p>在<code>Driver</code>中，框架已经默认帮我们加上了<code>shareReplayLatestWhileConnected</code>，所以我们也没必要再加上”replay”相关的语句了。</p>
+</li>
+</ul>
+<p>从这些特性可以看出，<code>Driver</code>是一个专门针对于UI的特定可观察者类。并不是说对UI进行相应绑定操作不能使用纯粹的<code>Observable</code>，但是，<code>Driver</code>已经帮我们省去了好多的操作，让我们对UI的绑定更加的高效便捷。所以，对UI视图的绑定操作，我们首选“老司机”<code>Driver</code>。</p>
+<h3 id="DisposeBag"><a href="#DisposeBag" class="headerlink" title="DisposeBag"></a>DisposeBag</h3><p>当一个<code>Observable（被观察者）</code>被观察订阅后，就会产生一个<code>Disposable</code>实例，通过这个实例，我们就能进行资源的释放了。<br>对于<code>RxSwift</code>中资源的释放，也就是解除绑定、释放空间，有两种方法，分别是显式释放以及隐式释放：</p>
+<ul>
+<li><p><strong>显式释放</strong> 可以让我们在代码中直接调用释放方法进行资源的释放，如下面的实例：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> dispose = textField.rx_text</span><br><span class="line">           .bindTo(label.rx_sayHelloObserver)</span><br><span class="line">dispose.dispose()</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>这个例子只是为了更明朗地说明显式释放方法而已，实际上并不会这样写。</p>
+<ul>
+<li><p><strong>隐式释放</strong> 则通过<code>DisposeBag</code>来进行，它类似于<code>Objective-C ARC</code>中的<code>自动释放池</code>机制，当我们创建了某个实例后，会被添加到所在线程的自动释放池中，而自动释放池会在一个<code>RunLoop</code>周期后进行池子的释放与重建；<code>DisposeBag</code>对于<code>RxSwift</code>就像<code>自动释放池</code>一样，我们把资源添加到<code>DisposeBag</code>中，让资源随着<code>DisposeBag</code>一起释放。如下实例：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">let</span> disposeBag = <span class="type">DisposeBag</span>()</span><br><span class="line"> <span class="function"><span class="keyword">func</span> <span class="title">binding</span><span class="params">()</span></span> &#123;</span><br><span class="line">		textField.rx_text</span><br><span class="line">			.bindTo(label.rx_sayHelloObserver)</span><br><span class="line">			.addDisposableTo(<span class="keyword">self</span>.disposeBag)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>方法<code>addDisposableTo</code>会对<code>DisposeBag</code>进行弱引用，所以这个<code>DisposeBag</code>要被实例引用着，一般可作为实例的成员变量，当实例被销毁了，成员<code>DisposeBag</code>会跟着销毁，从而使得<code>RxSwift</code>在此实例上绑定的资源得到释放。</p>
+<p>对于<code>UITableViewCell</code>跟<code>UICollectionViewCell</code>来说，<code>DisposeBag</code>也能让cell在重用前释放掉之前被绑定的资源：</p>
+ <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"> <span class="class"><span class="keyword">class</span> <span class="title">TanTableViewCell</span>: <span class="title">UITableViewCell</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> disposeBag: <span class="type">DisposeBag</span>?</span><br><span class="line">    <span class="keyword">var</span> viewModel: <span class="type">TanCellViewModel</span>? &#123;</span><br><span class="line">        <span class="keyword">didSet</span> &#123;</span><br><span class="line">            <span class="keyword">let</span> disposeBag = <span class="type">DisposeBag</span>()</span><br><span class="line">            viewModel?.title</span><br><span class="line">                .drive(<span class="keyword">self</span>.textLabel!.rx_text)</span><br><span class="line">                .addDisposableTo(disposeBag)</span><br><span class="line">            <span class="keyword">self</span>.disposeBag = disposeBag</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">prepareForReuse</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.prepareForReuse()</span><br><span class="line">        <span class="keyword">self</span>.disposeBag = <span class="literal">nil</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="DataSource"><a href="#DataSource" class="headerlink" title="DataSource"></a>DataSource</h3><p>这里主要讲解的是<code>RxCocoa</code>框架中带有的对于<code>UITableView</code>以及<code>UICollectionView</code>数据源的解决方案，在GitHub中也有一个开源小库<code>RxDataSource</code>，在这里我就不再研究了，有兴趣的朋友可以去看看：<a href="https://github.com/RxSwiftCommunity/RxDataSources" target="_blank" rel="external">GitHub RxDataSource</a>。<br>我这里用一个例子来展示下<code>RxCocoa</code>中的简单<code>UITableView</code>数据源：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TanViewController</span>: <span class="title">UIViewController</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> disposeBag = <span class="type">DisposeBag</span>()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> data = [<span class="type">TanCellViewModel</span>(title: <span class="string">"One"</span>), <span class="type">TanCellViewModel</span>(title: <span class="string">"Two"</span>), <span class="type">TanCellViewModel</span>(title: <span class="string">"Three"</span>)]</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">viewDidLoad</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.viewDidLoad()</span><br><span class="line">        <span class="keyword">self</span>.view.addSubview(<span class="keyword">self</span>.tableView)</span><br><span class="line">        <span class="keyword">self</span>.tableView.frame = <span class="keyword">self</span>.view.bounds</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">self</span>.binging()</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">func</span> <span class="title">binging</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="type">Observable</span>.just(<span class="keyword">self</span>.data)</span><br><span class="line">            .asDriver(onErrorJustReturn: [])</span><br><span class="line">            .drive(<span class="keyword">self</span>.tableView.rx_itemsWithCellIdentifier(<span class="type">TanTableViewCell</span>.<span class="type">CELL_IDENTIFIER</span>, cellType: <span class="type">TanTableViewCell</span>.<span class="keyword">self</span>)) &#123; (<span class="number">_</span>, viewModel, cell) <span class="keyword">in</span></span><br><span class="line">                cell.viewModel = viewModel</span><br><span class="line">            &#125;</span><br><span class="line">            .addDisposableTo(<span class="keyword">self</span>.disposeBag)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//  MARK: - Lazy</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> tableView: <span class="type">UITableView</span> = &#123;</span><br><span class="line">        <span class="keyword">let</span> tableView = <span class="type">UITableView</span>(frame: <span class="type">CGRectZero</span>, style: .<span class="type">Plain</span>)</span><br><span class="line">        tableView.registerClass(<span class="type">TanTableViewCell</span>.<span class="keyword">self</span>, forCellReuseIdentifier: <span class="type">TanTableViewCell</span>.<span class="type">CELL_IDENTIFIER</span>)</span><br><span class="line">        <span class="keyword">return</span> tableView</span><br><span class="line">    &#125;()</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如上，我们能够将数据封装在<code>Observable</code>中，然后在吧<code>Observable</code>绑定到<code>UITableView</code>中，通过<code>UITableView</code>的方法<code>rx_itemsWithCellIdentifier</code>，我们就能够进行数据跟Cell的一一对应配置。<br>到此，<code>UITableView</code>的数据源就设置好了。<code>UICollectionView</code>的数据源设置跟<code>UITableView</code>差不多，在这里就不再作例子了。</p>
+<h2 id="项目实战"><a href="#项目实战" class="headerlink" title="项目实战"></a>项目实战</h2><p>下面就是重头戏了，我将通过折腾出一个小项目来演示<code>RxSwift</code>的使用，包括基础以及进阶的内容，首先来设定下这个项目：<br>说简单点，就是做一个登录界面（万能Demo）😏，输入用户号码跟密码，点击登录按钮，即可登录获取数据。🙂<br>说复杂点，我们要完成下面的要求：</p>
+<ol>
+<li>用户号码输入框要判断用户输入的是否全是数字，若格式不正确，提示用户格式错误。</li>
+<li>号码输入框输入的数字最少要有11位，密码输入框输入的字符串长度最少要有6位。</li>
+<li>要满足上面的两条要求，登录按钮才可以点击。</li>
+<li>登录按钮点击后进行登录，界面显示正在转动的等待视图，当接收到后台数据时，等待视图消失。</li>
+<li>解析后台返回的数据，并把数据呈现到界面中。</li>
+</ol>
+<p>在这个项目中，我还是使用熟悉的<code>MVVM</code>架构模式。在开干之前我首先要说几点：</p>
+<ul>
+<li><code>RxSwift</code>中的<code>ViewModel</code>是没有什么明确的状态的，它的输出由输入决定，可以这么说，我们要使用<code>RxSwift</code>将<code>ViewModel</code>中的外界输入（UI触发、外界事件）转换成输出，再由这些输出去驱动UI界面，并且，<code>ViewModel</code>做的是转换，我们不能够在其中对某个<code>Observable</code>进行订阅操作，所以，在<code>ViewModel</code>中我们是看不到<code>addDisposableTo</code>的。</li>
+<li>我对比了一下由<code>ReactiveCocoa</code>与<code>RxSwift</code>实现的<code>ViewModel</code>，发现使用<code>ReactiveCocoa</code>实现的<code>ViewModel</code>中会有比较多的明确状态变量，比如说现在实现的是登录的界面，在<code>ReactiveCocoa</code>的<code>ViewModel</code>中我们会看到有”userName”、”passWord”等等之类的状态变量，它是由<code>ReactiveCocoa</code>将其与UI视图属性相绑定的：<code>RAC(self.viewModel, userName) = userNameTextField.rac_textSignal;</code>，而在<code>RxSwift</code>实现的<code>ViewModel</code>，就不会看到这些状态变量了，有的是驱动外界UI的输出<code>Driver</code>，个人认为<code>RxSwift</code>实现<code>ViewModel</code>的宗旨是将外界视图的输入经过转变产生输出，在让输出去驱动回UI视图，所以我在构建<code>ViewModel</code>类的时候，会在它的构造方法中开设一个接收输入的参数，其次就在后面的控制器绑定中将<code>ViewModel</code>的输出进行订阅，驱动视图层。</li>
+<li>这个项目我使用的第三方库有<code>RxSwift</code>、<code>RxCocoa</code>、<code>Moya</code>、<code>Argo</code>、<code>Curry</code>，前面两个在上面有说到；<code>Moya</code>是一款<code>Swift</code>语言的网络请求框架，它是另一款网络请求框架<code>Alamofire</code>的再度封装，它有基于<code>RxSwift</code>的扩展，能与<code>RxSwift</code>无缝对接；<code>Argo</code>是一款小巧的<code>JSON</code>解析库，<code>函数柯里化(Currying)</code>库<code>Curry</code>配合着它一起使用，而且，<code>Argo</code>的解析语法非常新颖奇特，用着感觉非常过瘾！</li>
+</ul>
+<p>敲代码走起~</p>
+<h3 id="界面"><a href="#界面" class="headerlink" title="界面"></a>界面</h3><p>在<code>Storyboard</code>中布局好登录界面，分别有用户电话号码的输入框、用户密码输入框、等待视图（菊花）、提示视图（用于提醒输入的错误，以及登录的状态）、登录按钮：<br> <img src="http://7xsfp9.com1.z0.glb.clouddn.com/rslt1.png" alt=""></p>
+<h3 id="Entity-实体"><a href="#Entity-实体" class="headerlink" title="Entity 实体"></a>Entity 实体</h3><p> 下面进行实体类(Entity)的构建：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">//</span></span><br><span class="line"><span class="comment">//  Entity.swift</span></span><br><span class="line"><span class="comment">//  RxLoginTest</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  Created by Tan on 16/7/18.</span></span><br><span class="line"><span class="comment">//  Copyright © 2016年 Tangent. All rights reserved.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> UIKit</span><br><span class="line"><span class="keyword">import</span> RxSwift</span><br><span class="line"><span class="keyword">import</span> RxCocoa</span><br><span class="line"><span class="keyword">import</span> Argo</span><br><span class="line"><span class="keyword">import</span> Moya</span><br><span class="line"><span class="keyword">import</span> Curry</span><br><span class="line"></span><br><span class="line"><span class="comment">//  MARK: - User</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> name: <span class="type">String</span></span><br><span class="line">    <span class="keyword">let</span> userToken: <span class="type">String</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">User</span>: <span class="title">Decodable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="function"><span class="keyword">func</span> <span class="title">decode</span><span class="params">(json: JSON)</span></span> -&gt; <span class="type">Decoded</span>&lt;<span class="type">User</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> curry(<span class="keyword">self</span>.<span class="keyword">init</span>)</span><br><span class="line">            &lt;^&gt; json &lt;| <span class="string">"name"</span></span><br><span class="line">            &lt;*&gt; json &lt;| <span class="string">"user_token"</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//  MARK: - ResponseResult</span></span><br><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">ResponseResult</span> </span>&#123;</span><br><span class="line">    <span class="keyword">case</span> succeed(user: <span class="type">User</span>)</span><br><span class="line">    <span class="keyword">case</span> faild(message: <span class="type">String</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> user: <span class="type">User</span>? &#123;</span><br><span class="line">        <span class="keyword">switch</span> <span class="keyword">self</span> &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="keyword">let</span> .succeed(user):</span><br><span class="line">            <span class="keyword">return</span> user</span><br><span class="line">        <span class="keyword">case</span> .faild:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">ResponseResult</span>: <span class="title">Decodable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">init</span>(statusCode: <span class="type">Int</span>, message: <span class="type">String</span>, user: <span class="type">User</span>?) &#123;</span><br><span class="line">        <span class="keyword">if</span> statusCode == <span class="number">200</span> &amp;&amp; user != <span class="literal">nil</span> &#123;</span><br><span class="line">            <span class="keyword">self</span> = .succeed(user: user!)</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">self</span> = .faild(message: message)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">static</span> <span class="function"><span class="keyword">func</span> <span class="title">decode</span><span class="params">(json: JSON)</span></span> -&gt; <span class="type">Decoded</span>&lt;<span class="type">ResponseResult</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> curry(<span class="keyword">self</span>.<span class="keyword">init</span>)</span><br><span class="line">            &lt;^&gt; json &lt;| <span class="string">"status_code"</span></span><br><span class="line">            &lt;*&gt; json &lt;| <span class="string">"message"</span></span><br><span class="line">            &lt;*&gt; json &lt;|? <span class="string">"user"</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//  MARK: - ValidateResult</span></span><br><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">ValidateResult</span> </span>&#123;</span><br><span class="line">    <span class="keyword">case</span> succeed</span><br><span class="line">    <span class="keyword">case</span> faild(message: <span class="type">String</span>)</span><br><span class="line">    <span class="keyword">case</span> empty</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">infix</span> <span class="keyword">operator</span> ^-^ &#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> ^-^ <span class="params">(lhs: ValidateResult, rhs: ValidateResult)</span></span> -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">    <span class="keyword">switch</span> (lhs, rhs) &#123;</span><br><span class="line">    <span class="keyword">case</span>  (.succeed, .succeed):</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//  MARK: - RequestTarget</span></span><br><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">RequestTarget</span> </span>&#123;</span><br><span class="line">    <span class="keyword">case</span> login(telNum: <span class="type">String</span>, password: <span class="type">String</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">RequestTarget</span>: <span class="title">TargetType</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> baseURL: <span class="type">NSURL</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="type">NSURL</span>(string: <span class="string">""</span>)!</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> path: <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"/login"</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> method: <span class="type">Moya</span>.<span class="type">Method</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> .<span class="type">POST</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> parameters: [<span class="type">String</span>: <span class="type">AnyObject</span>]? &#123;</span><br><span class="line">        <span class="keyword">switch</span> <span class="keyword">self</span> &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="keyword">let</span> .login(telNum, password):</span><br><span class="line">            <span class="keyword">return</span> [<span class="string">"tel_num"</span>: telNum, <span class="string">"password"</span>: password]</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            ()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> sampleData: <span class="type">NSData</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> jsonString = <span class="string">"&#123;\"status_code\":200, \"message\":\"登录成功\", \"user\":&#123;\"name\":\"Tangent\",\"user_token\":\"abcdefg123456\"&#125;&#125;"</span></span><br><span class="line">        <span class="keyword">return</span> jsonString.dataUsingEncoding(<span class="type">NSUTF8StringEncoding</span>)!</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>User</strong> 用户类，登录成功后，后台会返回用户的个人信息，包括用户名称以及用户的登录令牌。</li>
+<li><strong>ResponseResult</strong> 网络请求返回类，枚举类型，成功的话它的关联值是一个用户类型，失败的话它就会有信息字符串关联。它的构造中靠的是状态码来完成，若后台返回的状态码为<code>200</code>，表示登录成功，返回用户，若为其他，表明登录失败，并返回错误信息。这里的<code>decode</code>方法为<code>Argo</code>解析所需实现的。</li>
+<li><strong>ValidateResult</strong> 验证类，如验证电话号码是否格式正确，号码或密码的长度是否达到要求等等，失败的时候会有错误信息相关联。</li>
+<li><strong>RequestTarget</strong> 请求目标，为<code>Moya</code>框架定制的网络请求类。</li>
+</ul>
+<h3 id="ViewModelServer-服务"><a href="#ViewModelServer-服务" class="headerlink" title="ViewModelServer 服务"></a>ViewModelServer 服务</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  ViewModelServer.swift</span></span><br><span class="line"><span class="comment">//  RxLoginTest</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  Created by Tan on 16/7/18.</span></span><br><span class="line"><span class="comment">//  Copyright © 2016年 Tangent. All rights reserved.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> UIKit</span><br><span class="line"><span class="keyword">import</span> RxCocoa</span><br><span class="line"><span class="keyword">import</span> RxSwift</span><br><span class="line"><span class="keyword">import</span> Moya</span><br><span class="line"><span class="keyword">import</span> Argo</span><br><span class="line"></span><br><span class="line"><span class="comment">//  MARK: - ValidateServer</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ValidateServer</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">let</span> instance = <span class="type">ValidateServer</span>()</span><br><span class="line">    </span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">func</span> <span class="title">shareInstance</span>() -&gt; <span class="title">ValidateServer</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.instance</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> minTelNumCount = <span class="number">11</span></span><br><span class="line">    <span class="keyword">let</span> minPasswordCount = <span class="number">6</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">validateTelNum</span><span class="params">(telNum: String)</span></span> -&gt; <span class="type">ValidateResult</span> &#123;</span><br><span class="line">        <span class="keyword">guard</span> <span class="keyword">let</span> <span class="number">_</span> = <span class="type">Int</span>(telNum) <span class="keyword">else</span> &#123; <span class="keyword">return</span> .faild(message: <span class="string">"号码格式错误"</span>) &#125;</span><br><span class="line">        <span class="keyword">return</span> telNum.characters.<span class="built_in">count</span> &gt;= <span class="keyword">self</span>.minTelNumCount ? .succeed : .faild(message: <span class="string">"号码长度不足"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">validatePassword</span><span class="params">(password: String)</span></span> -&gt; <span class="type">ValidateResult</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> password.characters.<span class="built_in">count</span> &gt;= <span class="keyword">self</span>.minPasswordCount ? .succeed : .faild(message: <span class="string">"密码长度不足"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//  MARK: - NetworkServer</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NetworkServer</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">let</span> instance = <span class="type">NetworkServer</span>()</span><br><span class="line">    </span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">func</span> <span class="title">shareInstace</span>() -&gt; <span class="title">NetworkServer</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.instance</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//  Lazy</span></span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">lazy</span> <span class="keyword">var</span> provider: <span class="type">RxMoyaProvider</span> = &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="type">RxMoyaProvider</span>&lt;<span class="type">RequestTarget</span>&gt;(stubClosure: <span class="type">MoyaProvider</span>.<span class="type">ImmediatelyStub</span>)</span><br><span class="line">    &#125;()</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">loginWork</span><span class="params">(telNum: String, password: String)</span></span> -&gt; <span class="type">Driver</span>&lt;<span class="type">ResponseResult</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.provider.request(.login(telNum: telNum, password: password))</span><br><span class="line">            .mapJSON()</span><br><span class="line">            .<span class="built_in">map</span> &#123; jsonObject -&gt; <span class="type">ResponseResult</span> <span class="keyword">in</span></span><br><span class="line">                <span class="keyword">let</span> decodeResult: <span class="type">Decoded</span>&lt;<span class="type">ResponseResult</span>&gt; = decode(jsonObject)</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">try</span> decodeResult.dematerialize()</span><br><span class="line">            &#125;</span><br><span class="line">            .asDriver(onErrorJustReturn: .faild(message: <span class="string">"网络或数据解析错误！"</span>))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这里有两个服务类，第一个为验证服务类，用于验证用户号码格式以及号码或密码的长度是否达到要求，第二个为网络请求类，用于向后台请求登录，这里要注意的是，<code>RxMoyaProvider</code>一定要被类引用，否则若把它设置为局部变量，请求就不能完成。在构建<code>RxMoyaProvider</code>的时候，我在构造方法中传入了<code>MoyaProvider.ImmediatelyStub</code>这个<code>stubClosure</code>参数，为的是测试，这样子系统就不会请求网络，而是直接通过获取<code>Target</code>的<code>sampleData</code>属性。</p>
+<h3 id="ViewModel-视图模型"><a href="#ViewModel-视图模型" class="headerlink" title="ViewModel 视图模型"></a>ViewModel 视图模型</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  ViewModel.swift</span></span><br><span class="line"><span class="comment">//  RxLoginTest</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  Created by Tan on 16/7/18.</span></span><br><span class="line"><span class="comment">//  Copyright © 2016年 Tangent. All rights reserved.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> UIKit</span><br><span class="line"><span class="keyword">import</span> RxSwift</span><br><span class="line"><span class="keyword">import</span> RxCocoa</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ViewModel</span> </span>&#123;</span><br><span class="line">    <span class="comment">//  MARK: - Output</span></span><br><span class="line">    <span class="keyword">let</span> juhuaShow: <span class="type">Driver</span>&lt;<span class="type">Bool</span>&gt;</span><br><span class="line">    <span class="keyword">let</span> loginEnable: <span class="type">Driver</span>&lt;<span class="type">Bool</span>&gt;</span><br><span class="line">    <span class="keyword">let</span> tipString: <span class="type">Driver</span>&lt;<span class="type">String</span>&gt;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(input: (telNum: <span class="type">Driver</span>&lt;<span class="type">String</span>&gt;, password: <span class="type">Driver</span>&lt;<span class="type">String</span>&gt;, loginTap: <span class="type">Driver</span>&lt;<span class="type">Void</span>&gt;),</span><br><span class="line">         dependency: (validateServer: <span class="type">ValidateServer</span>, networkServer: <span class="type">NetworkServer</span>)) &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">let</span> telNumValidate = input.telNum</span><br><span class="line">            .distinctUntilChanged()</span><br><span class="line">            .<span class="built_in">map</span> &#123; <span class="keyword">return</span> dependency.validateServer.validateTelNum($<span class="number">0</span>) &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">let</span> passwordValidate = input.password</span><br><span class="line">            .distinctUntilChanged()</span><br><span class="line">            .<span class="built_in">map</span> &#123; <span class="keyword">return</span> dependency.validateServer.validatePassword($<span class="number">0</span>) &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">let</span> validateString = [telNumValidate, passwordValidate]</span><br><span class="line">            .combineLatest &#123; result -&gt; <span class="type">String</span> <span class="keyword">in</span></span><br><span class="line">                <span class="keyword">var</span> validateString = <span class="string">""</span></span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">case</span> <span class="keyword">let</span> .faild(message) = result[<span class="number">0</span>] &#123;</span><br><span class="line">                    validateString = <span class="string">"\(message)"</span></span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">case</span> <span class="keyword">let</span> .faild(message) = result[<span class="number">1</span>] &#123;</span><br><span class="line">                    validateString = <span class="string">"\(validateString) \(message)"</span></span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> validateString</span><br><span class="line">            &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">let</span> telNumAndPassWord = <span class="type">Driver</span>.combineLatest(input.telNum, input.password) &#123; ($<span class="number">0</span>, $<span class="number">1</span>) &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">let</span> loginString = input.loginTap.withLatestFrom(telNumAndPassWord)</span><br><span class="line">            .flatMapLatest &#123;</span><br><span class="line">                <span class="keyword">return</span> dependency.networkServer.loginWork($<span class="number">0.0</span>, password: $<span class="number">0.1</span>)</span><br><span class="line">            &#125;</span><br><span class="line">            .<span class="built_in">map</span> &#123; result -&gt; <span class="type">String</span> <span class="keyword">in</span></span><br><span class="line">                <span class="keyword">switch</span> result &#123;</span><br><span class="line">                <span class="keyword">case</span> <span class="keyword">let</span> .faild(message):</span><br><span class="line">                    <span class="keyword">return</span> <span class="string">"登录失败 \(message)"</span></span><br><span class="line">                <span class="keyword">case</span> <span class="keyword">let</span> .succeed(user):</span><br><span class="line">                    <span class="keyword">return</span> <span class="string">"登录成功，用户名:\(user.name)，标识符:\(user.userToken)"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">self</span>.loginEnable = [telNumValidate, passwordValidate]</span><br><span class="line">            .combineLatest &#123; result -&gt; <span class="type">Bool</span> <span class="keyword">in</span></span><br><span class="line">                <span class="keyword">return</span> result[<span class="number">0</span>] ^-^ result[<span class="number">1</span>]</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">self</span>.juhuaShow = <span class="type">Driver</span>.of(loginString.<span class="built_in">map</span>&#123;<span class="number">_</span> <span class="keyword">in</span> <span class="literal">false</span>&#125;, input.loginTap.<span class="built_in">map</span>&#123;<span class="number">_</span> <span class="keyword">in</span> <span class="literal">true</span>&#125;)</span><br><span class="line">            .merge()</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">self</span>.tipString = <span class="type">Driver</span>.of(validateString, loginString)</span><br><span class="line">            .merge()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>ViewModel</code>相对来说比较难搞，毕竟我们要处理好每一个输入输出的关系，灵活进行转变。在这里，没有显式的状态变量，只有对外的输出以及构造时对内的输入，思想就是将输入流进行加工转变成输出流，数据在传输中能够单向传递。</p>
+<h3 id="ViewController-视图控制器"><a href="#ViewController-视图控制器" class="headerlink" title="ViewController 视图控制器"></a>ViewController 视图控制器</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  ViewController.swift</span></span><br><span class="line"><span class="comment">//  RxLoginTest</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//  Created by Tan on 16/7/18.</span></span><br><span class="line"><span class="comment">//  Copyright © 2016年 Tangent. All rights reserved.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> UIKit</span><br><span class="line"><span class="keyword">import</span> RxSwift</span><br><span class="line"><span class="keyword">import</span> RxCocoa</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ViewController</span>: <span class="title">UIViewController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@IBOutlet</span> <span class="keyword">weak</span> <span class="keyword">var</span> telNumTF: <span class="type">UITextField</span>!</span><br><span class="line">    <span class="meta">@IBOutlet</span> <span class="keyword">weak</span> <span class="keyword">var</span> passWordTF: <span class="type">UITextField</span>!</span><br><span class="line">    <span class="meta">@IBOutlet</span> <span class="keyword">weak</span> <span class="keyword">var</span> juhuaView: <span class="type">UIActivityIndicatorView</span>!</span><br><span class="line">    <span class="meta">@IBOutlet</span> <span class="keyword">weak</span> <span class="keyword">var</span> loginBtn: <span class="type">UIButton</span>!</span><br><span class="line">    <span class="meta">@IBOutlet</span> <span class="keyword">weak</span> <span class="keyword">var</span> tipLb: <span class="type">UILabel</span>!</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> viewModel: <span class="type">ViewModel</span>?</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> disposeBag = <span class="type">DisposeBag</span>()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">viewDidLoad</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.viewDidLoad()</span><br><span class="line">        <span class="keyword">self</span>.viewModel = <span class="type">ViewModel</span>(input: (</span><br><span class="line">                                    <span class="keyword">self</span>.telNumTF.rx_text.asDriver(),</span><br><span class="line">                                    <span class="keyword">self</span>.passWordTF.rx_text.asDriver(),</span><br><span class="line">                                    <span class="keyword">self</span>.loginBtn.rx_tap.asDriver()),</span><br><span class="line">                                   dependency: (</span><br><span class="line">                                    <span class="type">ValidateServer</span>.shareInstance(),</span><br><span class="line">                                    <span class="type">NetworkServer</span>.shareInstace())</span><br><span class="line">                                    )</span><br><span class="line">        <span class="comment">//  Binding</span></span><br><span class="line">        <span class="keyword">self</span>.viewModel!.juhuaShow</span><br><span class="line">            .drive(<span class="keyword">self</span>.juhuaView.rx_animating)</span><br><span class="line">            .addDisposableTo(<span class="keyword">self</span>.disposeBag)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">self</span>.viewModel!.loginEnable</span><br><span class="line">            .drive(<span class="keyword">self</span>.loginBtn.rx_loginEnable)</span><br><span class="line">            .addDisposableTo(<span class="keyword">self</span>.disposeBag)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">self</span>.viewModel!.tipString</span><br><span class="line">            .drive(<span class="keyword">self</span>.tipLb.rx_text)</span><br><span class="line">            .addDisposableTo(<span class="keyword">self</span>.disposeBag)</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">extension</span> <span class="title">UIButton</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> rx_loginEnable: <span class="type">AnyObserver</span>&lt;<span class="type">Bool</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="type">UIBindingObserver</span>(<span class="type">UIElement</span>: <span class="keyword">self</span>, binding: &#123; (button, bool) <span class="keyword">in</span></span><br><span class="line">            <span class="keyword">self</span>.enabled = bool</span><br><span class="line">            <span class="keyword">if</span> bool &#123;</span><br><span class="line">                button.backgroundColor = <span class="type">UIColor</span>.greenColor()</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                button.backgroundColor = <span class="type">UIColor</span>.redColor()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).asObserver()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这里，我们构建好<code>ViewModel</code>，将输入以及视图模型依赖的服务传入<code>ViewModel</code>构造方法中，并在下面把<code>ViewModel</code>的输入去驱动UI视图。</p>
+<hr>
+<p>到这里，我们的实战项目就搞定啦~<br>如果你想下载项目源代码，可以Click入我的GitHub：<a href="https://github.com/TangentW/RxLoginTest" target="_blank" rel="external">RxSwiftLoginTest GitHub-Tangent</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>本文主要参考<code>RxSwift</code>官方文档以及官方给出的一些实例，详情请访问<code>RxSwift</code>在GitHub上的栏目:<br><a href="https://github.com/ReactiveX/RxSwift" target="_blank" rel="external">RxSwift GitHub</a>.</p>
+
+    
+  </div>
+</article>
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal-one" aria-hidden="true">
+  <a href="#close" class="cover" aria-hidden="true"></a>
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <a href="#close" class="btn-close" aria-hidden="true">关闭</a>
+    </div>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/category/"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/project/"
+              target="_self"
+              >
+              项目
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'tangentgift';
+    
+    var disqus_url = 'http://yoursite.com/2016/07/19/iOS-RxSwift进阶与实战/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+
+  <script id="dsq-count-scr" src="//tangentgift.disqus.com/count.js" async></script>
+
+
+
+    
+
+
+
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?398', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
