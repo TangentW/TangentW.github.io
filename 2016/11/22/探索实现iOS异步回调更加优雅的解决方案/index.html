@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+
+
+  <html class="light">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>探索实现iOS异步回调更加优雅的解决方案 | Tangent</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="iOS,ReactiveCocoa,MVVM,RxSwift,MVP," />
+  
+
+  <meta name="description" content="前言iOS的回调机制在iOS开发中，回调机制的实现主要有两种：
+
+利用代理设计模式，制定好一套回调协议，在需要进行向外回调的实例中添加代理属性，当要进行回调的时候，直接调用自身代理属性的回调方法。在iOS官方API中大多数都是采用这套方案。
+利用闭包（block），采用函数式编程思想，将一段代码作为参数传入方法中，在需要向外回调时，直接调用之前传进来的代码。由于使用第一种方法，代码量相对较多，而且">
+<meta property="og:type" content="article">
+<meta property="og:title" content="探索实现iOS异步回调更加优雅的解决方案">
+<meta property="og:url" content="http://yoursite.com/2016/11/22/探索实现iOS异步回调更加优雅的解决方案/index.html">
+<meta property="og:site_name" content="Tangent">
+<meta property="og:description" content="前言iOS的回调机制在iOS开发中，回调机制的实现主要有两种：
+
+利用代理设计模式，制定好一套回调协议，在需要进行向外回调的实例中添加代理属性，当要进行回调的时候，直接调用自身代理属性的回调方法。在iOS官方API中大多数都是采用这套方案。
+利用闭包（block），采用函数式编程思想，将一段代码作为参数传入方法中，在需要向外回调时，直接调用之前传进来的代码。由于使用第一种方法，代码量相对较多，而且">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/%E9%80%BB%E8%BE%91%E5%9B%BE.jpg">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/%E4%BE%8B%E5%AD%90.jpeg">
+<meta property="og:updated_time" content="2016-11-22T08:02:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="探索实现iOS异步回调更加优雅的解决方案">
+<meta name="twitter:description" content="前言iOS的回调机制在iOS开发中，回调机制的实现主要有两种：
+
+利用代理设计模式，制定好一套回调协议，在需要进行向外回调的实例中添加代理属性，当要进行回调的时候，直接调用自身代理属性的回调方法。在iOS官方API中大多数都是采用这套方案。
+利用闭包（block），采用函数式编程思想，将一段代码作为参数传入方法中，在需要向外回调时，直接调用之前传进来的代码。由于使用第一种方法，代码量相对较多，而且">
+<meta name="twitter:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/%E9%80%BB%E8%BE%91%E5%9B%BE.jpg">
+
+  
+
+  
+    <link rel="icon" href="/images/icon.ico">
+  
+  
+  <link href="/css/styles.css?v=5f7f1d39" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?0e70ef65f0d3c8a1e0d427edc322fc77";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+</head>
+
+<body>
+
+  
+    <a href="#modal-one" class="toolbox-mobile">盒子</a>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/project/"
+            target="_self"
+            >
+            项目
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#iOS的回调机制"><span class="toc-text">iOS的回调机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MVVM与MVP中的回调"><span class="toc-text">MVVM与MVP中的回调</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#响应式、函数式框架中的回调"><span class="toc-text">响应式、函数式框架中的回调</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#设计iOS异步回调更加优雅的轮子"><span class="toc-text">设计iOS异步回调更加优雅的轮子</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#原理"><span class="toc-text">原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用"><span class="toc-text">使用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#简单的例子"><span class="toc-text">简单的例子</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#异步回调"><span class="toc-text">异步回调</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#取消操作"><span class="toc-text">取消操作</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#源码编写"><span class="toc-text">源码编写</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#拓展"><span class="toc-text">拓展</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#对按钮的拓展"><span class="toc-text">对按钮的拓展</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#对UITextField的拓展"><span class="toc-text">对UITextField的拓展</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-text">参考资料</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-探索实现iOS异步回调更加优雅的解决方案" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">探索实现iOS异步回调更加优雅的解决方案</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2016.11.22</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>Tangent 汤骏炜</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/iOS/">iOS</a>
+  </span>
+
+
+
+      
+
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h3 id="iOS的回调机制"><a href="#iOS的回调机制" class="headerlink" title="iOS的回调机制"></a>iOS的回调机制</h3><p>在iOS开发中，回调机制的实现主要有两种：</p>
+<ol>
+<li>利用代理设计模式，制定好一套回调协议，在需要进行向外回调的实例中添加代理属性，当要进行回调的时候，直接调用自身代理属性的回调方法。在iOS官方API中大多数都是采用这套方案。</li>
+<li>利用闭包（block），采用函数式编程思想，将一段代码作为参数传入方法中，在需要向外回调时，直接调用之前传进来的代码。<br>由于使用第一种方法，代码量相对较多，而且代理关系容易变得很复杂，所以一般建议使用第二种方法进行回调，灵活方便。<h3 id="MVVM与MVP中的回调"><a href="#MVVM与MVP中的回调" class="headerlink" title="MVVM与MVP中的回调"></a>MVVM与MVP中的回调</h3>在使用<code>MVVM</code>或<code>MVP</code>架构时，<code>ViewController</code>其实在充当着<code>View</code>的角色，当<code>ViewController</code>中有用户事件触发时，其立即将事件流传递给<code>ViewModel(MVVM)</code>或<code>Presenter(MVP)</code>，然后对事件进行处理、转换，如将用户按下按键的事件转换成向服务器发送HTTP请求事件，然后当接收到HTTP响应后再把事件转换为改变<code>ViewController</code>界面控件显示状态的事件，形成了一套事件的流式转换，所以，我们能看到，在这一条事件流转换的过程中，<code>ViewController</code>充当着事件的最初发送者以及最后接收者，<code>ViewModel</code>或<code>Presenter</code>充当了事件的处理、转换者，在这过程中，必然要使用到回调机制。<h3 id="响应式、函数式框架中的回调"><a href="#响应式、函数式框架中的回调" class="headerlink" title="响应式、函数式框架中的回调"></a>响应式、函数式框架中的回调</h3>一些第三方的<code>响应式</code>、<code>函数式</code>框架，如<code>ReactiveCocoa</code>、<code>RxSwift</code>等，能够更加优雅地实现<code>MVVM</code>或<code>MVP</code>架构，在对事件回调的解决中，可谓是体现了代码的艺术之美，将事件流高度抽象，让开发者能够方便快捷地实现事件的转换。不仅如此，这些框架还提供了异步的解决方案，使开发者能够设定事件在流中能够跨线程传输。</li>
+</ol>
+<h2 id="设计iOS异步回调更加优雅的轮子"><a href="#设计iOS异步回调更加优雅的轮子" class="headerlink" title="设计iOS异步回调更加优雅的轮子"></a>设计iOS异步回调更加优雅的轮子</h2><p>我受<code>ReactiveCocoa</code>以及<code>RxSwift</code>的启发，然后自己试着去实现一套iOS异步回调的解决方案，使得我在使用<code>MVVM</code>或<code>MVP</code>架构小规模项目时没必要再使用<code>ReactiveCocoa</code>、<code>RxSwift</code>等较为大型的框架，直接套上这小轮子即可~</p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>下面就是这个解决方案的执行逻辑图：<br><img src="http://7xsfp9.com1.z0.glb.clouddn.com/%E9%80%BB%E8%BE%91%E5%9B%BE.jpg" alt=""><br>如图，这个轮子的名字我起作<code>Command</code>，它可以横跨两层，分别是<code>上层</code>以及<code>底层</code>，<code>上层</code>即对应了<code>MVVM</code>与<code>MVP</code>架构中的<code>View</code>层，<code>底层</code>对应的是<code>MVVM</code>中的<code>ViewModel</code>层，<code>MVP</code>中的<code>Presenter</code>层。<br>这两层分工明确，上层接收到用户的反馈事件，并将反馈事件所携带的初始数据传入底层，并且，将底层处理好的结果数据反映到界面上去，如修改某个空间的显示状态等；底层则专注于事件的处理、加工、转换，如用户点击了某个按钮，上层将接受到的点击事件传递给了底层，底层先将按钮的点击事件转换为网络请求事件，当网络请求完毕后，底层再将请求响应事件进行解析，转换成上层的显示事件，最后回调到上层，刷新显示。<br>这就是上面所提到的例子的逻辑图：<br><img src="http://7xsfp9.com1.z0.glb.clouddn.com/%E4%BE%8B%E5%AD%90.jpeg" alt=""></p>
+<p><code>Command</code>的作用就是这两层的<code>Binder(粘合剂)</code>，专门负责沟通这两层，实现事件、数据的环形流向。</p>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><h4 id="简单的例子"><a href="#简单的例子" class="headerlink" title="简单的例子"></a>简单的例子</h4><p>在介绍<code>Command</code>的源码前首先来看下如何使用<code>Command</code>实现<code>MVVM</code>架构模式：</p>
+<blockquote>
+<p>ViewModel</p>
+</blockquote>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ViewModel</span> </span>&#123;</span><br><span class="line">    <span class="comment">//  Commands</span></span><br><span class="line">    <span class="keyword">let</span> loginCommand: <span class="type">Command</span>&lt;(<span class="type">String</span>?, <span class="type">String</span>?), <span class="type">Bool</span>&gt;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>() &#123;</span><br><span class="line">        <span class="keyword">self</span>.loginCommand = <span class="type">Command</span> &#123; nameAndPassword, effect <span class="keyword">in</span></span><br><span class="line">            <span class="keyword">let</span> userName = nameAndPassword.<span class="number">0</span></span><br><span class="line">            <span class="keyword">let</span> password = nameAndPassword.<span class="number">1</span></span><br><span class="line">            effect.onNext(userName == <span class="string">"Tangent"</span> &amp;&amp; password == <span class="string">"123"</span>)</span><br><span class="line">            effect.onCompleted()</span><br><span class="line">            <span class="keyword">return</span> <span class="type">NopCancelable</span>()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>ViewModel</code>类有一<code>Command</code>属性<code>loginCommand</code>，它的泛型参数为一个数据类型都为String的二元元组，代表用户登录时输入的用户名以及密码，另一个泛型参数为一个布尔类型值，代表用户登录是否成功；在loginCommand构造时，我们利用构造函数中闭包参数中的参数值<code>nameAndPassword</code>来接受用户的事件数据输入，然后进行相应的处理，最后再通过闭包参数的的参数值<code>effect</code>将结果发送出去。</p>
+<blockquote>
+<p>ViewController</p>
+</blockquote>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span><br><span class="line">   当用户按下登录按钮所触发的方法</span><br><span class="line"> */</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">buttonTap</span><span class="params">(sender: AnyObject)</span></span> &#123;</span><br><span class="line">    <span class="number">_</span> = <span class="keyword">self</span>.viewModel.loginCommand.execute((userNameTextField.text, passwordTextField.text))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当用户按下登录按钮时，触发<code>loginCommand</code>的<code>execute</code>方法，并将用户输入的用户名以及密码传入Command中</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">viewDidLoad</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">super</span>.viewDidLoad()</span><br><span class="line">        </span><br><span class="line">    <span class="comment">//  装载视图</span></span><br><span class="line">    <span class="keyword">self</span>.setupViews()</span><br><span class="line">    <span class="comment">//  布局视图</span></span><br><span class="line">    <span class="keyword">self</span>.layoutViews()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">self</span>.viewModel.loginCommand.handle(next: &#123; result <span class="keyword">in</span></span><br><span class="line">        <span class="comment">//  登录验证后的回调</span></span><br><span class="line">        <span class="built_in">print</span>(result ? <span class="string">"登录成功"</span> : <span class="string">"登录失败"</span>)</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们在<code>ViewController</code>中的<code>viewDidLoad</code>方法中进行<code>loginCommand</code>的回调处理，需调用<code>loginCommand</code>的<code>handle</code>方法，传入处理闭包。</p>
+<h4 id="异步回调"><a href="#异步回调" class="headerlink" title="异步回调"></a>异步回调</h4><p>以上，<code>Command</code>的大致使用方法就是这样，但是，上面展示的使用只是针对于同步的单线程（在主线程中），如果我们进行异步的操作，如果说指定处理数据所在的线程，或者指定处理回调所在的线程，我们可以在<code>execute</code>方法以及<code>handle</code>方法的参数中指定所在线程队列:</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  指定回调处理所在的线程队列</span></span><br><span class="line"><span class="keyword">self</span>.viewModel.loginCommand.handle(on:<span class="type">DispatchQueue</span>.main, next: &#123; result <span class="keyword">in</span> <span class="comment">/* ... */</span> &#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">//  指定数据在处理时所在的线程队列</span></span><br><span class="line"><span class="number">_</span> = <span class="keyword">self</span>.viewModel.loginCommand.execute((userName, password), on: <span class="type">DispatchQueue</span>.global())</span><br></pre></td></tr></table></figure>
+<h4 id="取消操作"><a href="#取消操作" class="headerlink" title="取消操作"></a>取消操作</h4><p>在有必要时，你可以取消正在进行的数据处理操作，这时我们需要了解一个协议<code>Cancelable</code>，我们使用它的方法<code>cancel</code>来取消一个<code>Command</code>所正在进行的操作。<br>在我们执行了<code>execute</code>方法后，我们会接收到一个返回值，这个返回值是<code>Cancelable</code>协议的实例，我们可以通过它来进行对指定<code>Command</code>操作的取消：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> cancelable = <span class="keyword">self</span>.viewModel.loginCommand.execute((userName, password))</span><br><span class="line">        </span><br><span class="line"><span class="comment">//  某个时候</span></span><br><span class="line">cancelable.cancel()</span><br></pre></td></tr></table></figure>
+<hr>
+<p>在取消操作的时候，我希望能进行一些取消前有必要的动作，比如回收资源、关闭文件流等等，我们可以在构建Command的时候在其构造函数的闭包参数中传入一个返回指定操作的<code>Cancelable</code>:</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">self</span>.loginCommand = <span class="type">Command</span> &#123; nameAndPassword, effect <span class="keyword">in</span></span><br><span class="line">	<span class="comment">//  login ...</span></span><br><span class="line">	<span class="keyword">return</span> <span class="type">TodoCancelable</span> &#123;</span><br><span class="line">		<span class="comment">//  Todo ...</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面我们传入了一个<code>TodoCancelable</code>类型的<code>Cancelable</code>，我们可以在构造它的时候传入要在取消时执行的动作，也可以通过它的方法<code>addTodo</code>添加动作。<br>假如我们不需要在取消时做任何动作，我们可以直接返回一个<code>NopCancelable</code>实例，就像刚刚在上面所展示的简单例子一样。</p>
+<h3 id="源码编写"><a href="#源码编写" class="headerlink" title="源码编写"></a>源码编写</h3><blockquote>
+<p>Event</p>
+</blockquote>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  MARK: - Event</span></span><br><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">Event</span>&lt;<span class="title">Element</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">case</span> next(<span class="type">Element</span>)</span><br><span class="line">    <span class="keyword">case</span> error(<span class="type">Error</span>)</span><br><span class="line">    <span class="keyword">case</span> completed</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Event</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> element: <span class="type">Element</span>? &#123;</span><br><span class="line">        <span class="keyword">switch</span> <span class="keyword">self</span> &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="keyword">let</span> .next(element):</span><br><span class="line">            <span class="keyword">return</span> element</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>顾名思义，它代表的是回调处理的事件，分别有<code>next</code>、<code>error</code>、<code>completed</code>：</p>
+<ul>
+<li><strong>next</strong>: 表明command已经完成了一项任务，并把完成的结果通过枚举关联值传递出来</li>
+<li><strong>error</strong>: 表明在执行的过程中有异常抛出了，并把异常类通过枚举关联值传递出来</li>
+<li><strong>completed</strong>: 表明command整个任务处理已经完成</li>
+</ul>
+<p><code>注：当error、completed事件发出时，command会自动调用cancelable进行取消操作</code></p>
+<blockquote>
+<p>Cancelable</p>
+</blockquote>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  MARK: - Cancelable</span></span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">Cancelable</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> isCancel: <span class="type">Bool</span> &#123; <span class="keyword">get</span> &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">cancel</span><span class="params">()</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NopCancelable</span>: <span class="title">Cancelable</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> isCancel: <span class="type">Bool</span> = <span class="literal">false</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">cancel</span><span class="params">()</span></span> &#123;</span><br><span class="line">        objc_sync_enter(<span class="keyword">self</span>)</span><br><span class="line">        isCancel = <span class="literal">true</span></span><br><span class="line">        objc_sync_exit(<span class="keyword">self</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TodoCancelable</span>: <span class="title">Cancelable</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> isCancel: <span class="type">Bool</span> = <span class="literal">false</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> todos: [() -&gt; ()] = []</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">addTodo</span><span class="params">(<span class="number">_</span> todo: @escaping <span class="params">()</span></span></span> -&gt; ()) &#123;</span><br><span class="line">        <span class="keyword">self</span>.todos.append(todo)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">cancel</span><span class="params">()</span></span> &#123;</span><br><span class="line">        objc_sync_enter(<span class="keyword">self</span>)</span><br><span class="line">        isCancel = <span class="literal">true</span></span><br><span class="line">        <span class="keyword">for</span> todo <span class="keyword">in</span> <span class="keyword">self</span>.todos &#123; todo() &#125;</span><br><span class="line">        objc_sync_exit(<span class="keyword">self</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>() &#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(<span class="number">_</span> todo: @escaping () -&gt; ()) &#123;</span><br><span class="line">        <span class="keyword">self</span>.todos.append(todo)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里有两个类实现了<code>Cancelable</code>协议，他们的作用我在上面已经说明了，在调用<code>cancel</code>方法的时候也进行了同步的操作，做到了线程的安全。</p>
+<blockquote>
+<p>Effect</p>
+</blockquote>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  MARK: - Effect</span></span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">EffectType</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    associatedtype <span class="type">E</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">on</span><span class="params">(<span class="number">_</span> event: Event&lt;E&gt;)</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">EffectType</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">final</span> <span class="function"><span class="keyword">func</span> <span class="title">onNext</span><span class="params">(<span class="number">_</span> element: E)</span></span> &#123;</span><br><span class="line">        <span class="keyword">self</span>.on(.next(element))</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">final</span> <span class="function"><span class="keyword">func</span> <span class="title">onCompleted</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">self</span>.on(.completed)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">final</span> <span class="function"><span class="keyword">func</span> <span class="title">onError</span><span class="params">(<span class="number">_</span> error: Error)</span></span> &#123;</span><br><span class="line">        <span class="keyword">self</span>.on(.error(error))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Effect</span>&lt;<span class="title">Element</span>&gt;: <span class="title">EffectType</span> </span>&#123;</span><br><span class="line">   </span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">E</span> = <span class="type">Element</span></span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">EventHandler</span> = (<span class="type">Event</span>&lt;<span class="type">Element</span>&gt;) -&gt; ()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> eventHandler: <span class="type">EventHandler</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(eventHandler: @escaping <span class="type">EventHandler</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.eventHandler = eventHandler</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">on</span><span class="params">(<span class="number">_</span> event: Event&lt;E&gt;)</span></span> &#123;</span><br><span class="line">        <span class="keyword">self</span>.eventHandler(event)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>Effect</code>可以说是事件的发送者，我们在数据处理得出结果后，就通过它将结果发送出去。这里effect发送的事件与上面提到的<code>Event</code>相对应。</p>
+<blockquote>
+<p>Command</p>
+</blockquote>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  MARK: - Command</span></span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">CommandType</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    associatedtype <span class="type">I</span></span><br><span class="line">    associatedtype <span class="type">O</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(<span class="number">_</span> todo: @escaping (<span class="type">I</span>, <span class="type">Effect</span>&lt;<span class="type">O</span>&gt;) <span class="keyword">throws</span> -&gt; <span class="type">Cancelable</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">execute</span><span class="params">(<span class="number">_</span> input: I, on: DispatchQueue)</span></span> -&gt; <span class="type">Cancelable</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">handle</span><span class="params">(on: DispatchQueue, next: <span class="params">(<span class="params">(O)</span></span></span></span> -&gt; ())?, error: ((<span class="type">Error</span>) -&gt; ())?, completed:(() -&gt; ())?)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Command</span>&lt;<span class="title">In</span>, <span class="title">Out</span>&gt;: <span class="title">CommandType</span> </span>&#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">I</span> = <span class="type">In</span></span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">O</span> = <span class="type">Out</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> todo: (<span class="type">I</span>, <span class="type">Effect</span>&lt;<span class="type">O</span>&gt;) <span class="keyword">throws</span> -&gt; <span class="type">Cancelable</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> eventHandler: ((<span class="type">Event</span>&lt;<span class="type">O</span>&gt;) -&gt; ())?</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">required</span> <span class="keyword">init</span>(<span class="number">_</span> todo: @escaping (<span class="type">I</span>, <span class="type">Effect</span>&lt;<span class="type">O</span>&gt;) <span class="keyword">throws</span> -&gt; <span class="type">Cancelable</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.todo = todo</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">execute</span><span class="params">(<span class="number">_</span> input: In, on: DispatchQueue = DispatchQueue.main)</span></span> -&gt; <span class="type">Cancelable</span> &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">let</span> cancelable = <span class="type">TodoCancelable</span>()</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">let</span> effect = <span class="type">Effect</span>&lt;<span class="type">O</span>&gt; &#123; event <span class="keyword">in</span></span><br><span class="line">            <span class="keyword">if</span> cancelable.isCancel &#123; <span class="keyword">return</span> &#125;</span><br><span class="line">            <span class="keyword">self</span>.eventHandler?(event)</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">case</span> .error = event &#123; cancelable.cancel() &#125;</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">case</span> .completed = event &#123; cancelable.cancel() &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        on.async &#123;</span><br><span class="line">            <span class="keyword">do</span> &#123;</span><br><span class="line">                <span class="keyword">let</span> mCancelable = <span class="keyword">try</span> <span class="keyword">self</span>.todo(input, effect)</span><br><span class="line">                cancelable.addTodo &#123;</span><br><span class="line">                    mCancelable.cancel()</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> <span class="keyword">let</span> error &#123;</span><br><span class="line">                effect.onError(error)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> cancelable</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">handle</span><span class="params">(on: DispatchQueue = DispatchQueue.main, next: <span class="params">(<span class="params">(Out)</span></span></span></span> -&gt; ())? = <span class="literal">nil</span>, error: ((<span class="type">Error</span>) -&gt; ())? = <span class="literal">nil</span>, completed: (() -&gt; ())? = <span class="literal">nil</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> eventHandler: (<span class="type">Event</span>&lt;<span class="type">O</span>&gt;) -&gt; () = &#123; event <span class="keyword">in</span></span><br><span class="line">            on.async &#123;</span><br><span class="line">                <span class="keyword">switch</span> event &#123;</span><br><span class="line">                <span class="keyword">case</span> .next(<span class="keyword">let</span> element):</span><br><span class="line">                    next?(element)</span><br><span class="line">                <span class="keyword">case</span> .completed:</span><br><span class="line">                    completed?()</span><br><span class="line">                <span class="keyword">case</span> .error(<span class="keyword">let</span> err):</span><br><span class="line">                    error?(err)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">self</span>.eventHandler = eventHandler</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个就是重头戏，也就是这篇文章要讲的主角<code>Command</code>，其他它的思想挺简单，就是讲我们制定的处理数据的动作先包装并存储好，当我们要执行操作的时候，就把原本存好的动作拿出来进行调用，并传入执行的数据。<br>这里有几点需要拿出来探讨下：</p>
+<ul>
+<li><strong>关于Effect以及异步的探讨:</strong> command中effect的加入可能会使得它的使用难度有所增加，因为结果并不是在<code>todo</code>闭包中直接返回，而是通过<code>todo</code>闭包中的<code>effect</code>参数将结果发送出去，其实这样设计的思想是为了切合异步多线程，而如果我们在设计command时只针对单线程环境，就大可不必那么麻烦，直接在<code>todo</code>闭包中计算完，返回即可。</li>
+<li><strong>关于Cancelable的探讨：</strong> 我们在执行完command的<code>execute</code>方法后，其会返回一个<code>Cancelable</code>，而我们在构建Command传入<code>todo</code>闭包时，要求我们要传入一个<code>Cancelable</code>，但是，其两者并不指向同一实例。因为考虑到存在异步调用的情况，所以在<code>todo</code>执行完毕之前，可能<code>execute</code>已经返回了<code>Cancelable</code>了，所以我在<code>execute</code>调用的时候就创建了一个<code>TodoCancelable</code>，然后当<code>todo</code>返回<code>Cancelable</code>时，将其与上面的<code>TodoCancelable</code>进行绑定，使它们能够做到同步取消。</li>
+<li><strong>关于同步执行的探讨：</strong> 如果我们没有指定command特定的执行或回调线程，其默认是运行在主线程上，但是，这并不代表当我们执行<code>execute</code>方法时，<code>todo</code>的内容就会立即执行并回调出来，而后再继续执行<code>execute</code>方法往下的内容，因为源码中，就算<code>todo</code>执行时在主线程队列中，但是它是被添加到GCD中的，意思是<code>todo</code>的执行会在下一次事件循环到来时才会去执行。</li>
+</ul>
+<p>到此，Command的源代码就展示完毕了。</p>
+<h3 id="拓展"><a href="#拓展" class="headerlink" title="拓展"></a>拓展</h3><p>首先，我们利用函数式编程，将command植入到每个对象中：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  MARK: - Commands</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Commands</span>&lt;<span class="title">Base</span>&gt; </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> base: <span class="type">Base</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(<span class="number">_</span> base: <span class="type">Base</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.base = base</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">CommandCompatible</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    associatedtype <span class="type">CompatibleType</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> cm: <span class="type">Commands</span>&lt;<span class="type">CompatibleType</span>&gt; &#123; <span class="keyword">get</span> <span class="keyword">set</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">CommandCompatible</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">T</span> = <span class="type">Self</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> cm: <span class="type">Commands</span>&lt;<span class="type">T</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">get</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="type">Commands</span>(<span class="keyword">self</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">set</span> &#123;</span><br><span class="line">            <span class="comment">//  保证能够修改cm中的属性,如object.cm.xxxCommand = xxx</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">NSObject</span>: <span class="title">CommandCompatible</span> </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>由于在扩展(extension)中无法添加存储属性，我们需要利用到关联对象：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  MARK: - AssociatedObject</span></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">NSObject</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">addObjectProperty</span><span class="params">(<span class="number">_</span> object: AnyObject, key: UnsafeRawPointer)</span></span> &#123;</span><br><span class="line">        objc_setAssociatedObject(<span class="keyword">self</span>, key, object, .<span class="type">OBJC_ASSOCIATION_RETAIN</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">getProperty</span><span class="params">(<span class="number">_</span> key: UnsafeRawPointer)</span></span> -&gt; <span class="type">Any</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> objc_getAssociatedObject(<span class="keyword">self</span>, key)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="对按钮的拓展"><a href="#对按钮的拓展" class="headerlink" title="对按钮的拓展"></a>对按钮的拓展</h4><p>按钮属于<code>UIControl</code>类，我们可以先构建一个针对于<code>UIControl</code>的<code>Command</code>中介类:</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  MARK: - ControlEventCommand</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ControlEventCommand</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> command: <span class="type">Command</span>&lt;<span class="type">Void</span>, <span class="type">Any</span>&gt;</span><br><span class="line">    <span class="keyword">let</span> control: <span class="type">UIControl</span></span><br><span class="line">    <span class="keyword">let</span> event: <span class="type">UIControlEvents</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(control: <span class="type">UIControl</span>, command: <span class="type">Command</span>&lt;<span class="type">Void</span>, <span class="type">Any</span>&gt;, event: <span class="type">UIControlEvents</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.control = control</span><br><span class="line">        <span class="keyword">self</span>.command = command</span><br><span class="line">        <span class="keyword">self</span>.event = event</span><br><span class="line">        control.addTarget(<span class="keyword">self</span>, action: #selector(<span class="type">ControlEventCommand</span>.onEvent), <span class="keyword">for</span>: event)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">deinit</span> &#123;</span><br><span class="line">        <span class="keyword">self</span>.control.removeTarget(<span class="keyword">self</span>, action: #selector(<span class="type">ControlEventCommand</span>.onEvent), <span class="keyword">for</span>: <span class="keyword">self</span>.event)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@objc</span> <span class="function"><span class="keyword">func</span> <span class="title">onEvent</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="number">_</span> = <span class="keyword">self</span>.command.execute(())</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后我们就可以对某个按钮的点击链接到command中：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">fileprivate <span class="keyword">var</span> tapCommandKey = <span class="number">0</span></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Commands</span> <span class="title">where</span> <span class="title">Base</span>: <span class="title">UIButton</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> tapCommand: <span class="type">Command</span>&lt;<span class="type">Void</span>, <span class="type">Any</span>&gt;? &#123;</span><br><span class="line">        <span class="keyword">set</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">let</span> value = newValue &#123;</span><br><span class="line">                <span class="keyword">let</span> cec = <span class="type">ControlEventCommand</span>(control: base, command: value, event: .touchUpInside)</span><br><span class="line">                base.addObjectProperty(cec, key: &amp;tapCommandKey)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">get</span> &#123;</span><br><span class="line">            <span class="keyword">let</span> cec = base.getProperty(&amp;tapCommandKey) <span class="keyword">as</span>? <span class="type">ControlEventCommand</span></span><br><span class="line">            <span class="keyword">return</span> cec?.command</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>怎么使用呢？</p>
+<blockquote>
+<p>ViewModel</p>
+</blockquote>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ViewModel</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> buttonTapCommand: <span class="type">Command</span>&lt;<span class="type">Void</span>, <span class="type">Any</span>&gt;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>() &#123;</span><br><span class="line">        <span class="keyword">self</span>.buttonTapCommand = <span class="type">Command</span> &#123; <span class="number">_</span>, effect <span class="keyword">in</span></span><br><span class="line">            <span class="comment">//  todo ...</span></span><br><span class="line">            <span class="keyword">return</span> <span class="type">NopCancelable</span>()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>ViewController</p>
+</blockquote>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">viewDidLoad</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">super</span>.viewDidLoad()</span><br><span class="line">        </span><br><span class="line">	<span class="comment">//  装载视图</span></span><br><span class="line">	<span class="keyword">self</span>.setupViews()</span><br><span class="line">	<span class="comment">//  布局视图</span></span><br><span class="line">	<span class="keyword">self</span>.layoutViews()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">self</span>.uploadButton.cm.tapCommand = <span class="keyword">self</span>.viewModel.buttonTapCommand</span><br><span class="line">        </span><br><span class="line">	<span class="keyword">self</span>.viewModel.buttonTapCommand.handle(next: &#123; output <span class="keyword">in</span></span><br><span class="line">		<span class="comment">//  todo...</span></span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="对UITextField的拓展"><a href="#对UITextField的拓展" class="headerlink" title="对UITextField的拓展"></a>对UITextField的拓展</h4><p>我们想要在textField中的文字改变是就立即触发command的操作，首先我们知道，想要监听textField文字的输入，我们可以通过通知机制，所以我们可以构造一个针对于通知的command中介者：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  MARK: - NotificationCommand</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NotificationCommand</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> command: <span class="type">Command</span>&lt;<span class="type">T</span>, <span class="type">Any</span>&gt;</span><br><span class="line">    <span class="keyword">let</span> mapper: (<span class="type">NSNotification</span>) -&gt; <span class="type">T</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(object: <span class="type">Any</span>, notificationName: <span class="type">NSNotification</span>.<span class="type">Name</span>?, command: <span class="type">Command</span>&lt;<span class="type">T</span>, <span class="type">Any</span>&gt;, mapper: @escaping (<span class="type">NSNotification</span>) -&gt; <span class="type">T</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.command = command</span><br><span class="line">        <span class="keyword">self</span>.mapper = mapper</span><br><span class="line">        <span class="type">NotificationCenter</span>.<span class="keyword">default</span>.addObserver(<span class="keyword">self</span>, selector: #selector(<span class="type">NotificationCommand</span>.handleNotification(notification:)), name: notificationName, object: object)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">deinit</span> &#123;</span><br><span class="line">        <span class="type">NotificationCenter</span>.<span class="keyword">default</span>.removeObserver(<span class="keyword">self</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@objc</span> <span class="function"><span class="keyword">func</span> <span class="title">handleNotification</span><span class="params">(notification: NSNotification)</span></span> &#123;</span><br><span class="line">        <span class="number">_</span> = <span class="keyword">self</span>.command.execute(<span class="keyword">self</span>.mapper(notification))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后我们就可以对textField进行扩展了：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">fileprivate <span class="keyword">var</span> textCommandKey = <span class="number">0</span></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Commands</span> <span class="title">where</span> <span class="title">Base</span>: <span class="title">UITextField</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> textCommand: <span class="type">Command</span>&lt;<span class="type">String</span>, <span class="type">Any</span>&gt;? &#123;</span><br><span class="line">        <span class="keyword">set</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">let</span> value = newValue &#123;</span><br><span class="line">                <span class="keyword">let</span> notificationCommand = <span class="type">NotificationCommand</span>(object: base, notificationName: <span class="type">NSNotification</span>.<span class="type">Name</span>.<span class="type">UITextFieldTextDidChange</span>, command: value, mapper: &#123; notification <span class="keyword">in</span></span><br><span class="line">                    (notification.object <span class="keyword">as</span>! <span class="type">UITextField</span>).text ?? <span class="string">""</span></span><br><span class="line">                &#125;)</span><br><span class="line">                base.addObjectProperty(notificationCommand, key: &amp;textCommandKey)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">get</span> &#123;</span><br><span class="line">            <span class="keyword">let</span> notificationCommand = base.getProperty(&amp;textCommandKey) <span class="keyword">as</span>? <span class="type">NotificationCommand</span>&lt;<span class="type">String</span>&gt;</span><br><span class="line">            <span class="keyword">return</span> notificationCommand?.command</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>用法也与上面的按钮拓展差不多，就不多说了。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/ReactiveX/RxSwift" target="_blank" rel="external">RxSwift  – Github链接</a><br><a href="https://github.com/ReactiveCocoa/ReactiveCocoa" target="_blank" rel="external">ReactiveCocoa  – Github链接</a></p>
+
+    
+  </div>
+</article>
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal-one" aria-hidden="true">
+  <a href="#close" class="cover" aria-hidden="true"></a>
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <a href="#close" class="btn-close" aria-hidden="true">关闭</a>
+    </div>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/category/"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/project/"
+              target="_self"
+              >
+              项目
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+  <section class="duoshuo-comments">
+    <!-- 多说评论框 start -->
+    <div class="ds-thread" data-thread-key="" data-title="探索实现iOS异步回调更加优雅的解决方案" data-url="http://yoursite.com/2016/11/22/探索实现iOS异步回调更加优雅的解决方案/index.html"></div>
+    <!-- 多说评论框 end -->
+  </section>
+
+
+
+
+  <script type="text/javascript">
+  var duoshuoQuery = {short_name:"tangentw"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0]
+     || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+  </script>
+
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?398', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
