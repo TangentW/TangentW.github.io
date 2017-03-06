@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+
+
+  <html class="light">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>基于RxSwift的MVVMR架构(一)思想、基本原理及初步实现 | Tangent</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="iOS,Swift,MVVM,RxSwift," />
+  
+
+  <meta name="description" content="基于RxSwift的MVVMR架构(一)思想、基本原理及初步实现摘要本系列文章将详细分析iOS的MVVMR架构模式，并基于Swift的响应式、函数式编程框架RxSwift提供相应的实现。系列共分为两个部分：
+
+MVVMR架构的思想、基本原理及其初步实现
+架构中某些细节部分的实现封装以及实战
+
+这篇文章讲述的是第一部分的内容，我会先把架构的各个组成粗略地罗列出，然后再对它们进行详细的分析，最后结合代">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于RxSwift的MVVMR架构(一)思想、基本原理及初步实现">
+<meta property="og:url" content="http://yoursite.com/2017/02/27/基于RxSwift的MVVMR架构(一)思想、基本原理及初步实现/index.html">
+<meta property="og:site_name" content="Tangent">
+<meta property="og:description" content="基于RxSwift的MVVMR架构(一)思想、基本原理及初步实现摘要本系列文章将详细分析iOS的MVVMR架构模式，并基于Swift的响应式、函数式编程框架RxSwift提供相应的实现。系列共分为两个部分：
+
+MVVMR架构的思想、基本原理及其初步实现
+架构中某些细节部分的实现封装以及实战
+
+这篇文章讲述的是第一部分的内容，我会先把架构的各个组成粗略地罗列出，然后再对它们进行详细的分析，最后结合代">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/%E5%9F%BA%E6%9C%AC%E6%9E%84%E6%88%90.png">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/%E6%80%BB%E4%BD%93%E6%B5%81%E8%BD%AC%E6%8D%A2.png">
+<meta property="og:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/%E6%B5%81%E8%BD%AC%E6%8D%A2%E7%BB%86%E8%8A%82.png">
+<meta property="og:updated_time" content="2017-03-06T12:53:01.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于RxSwift的MVVMR架构(一)思想、基本原理及初步实现">
+<meta name="twitter:description" content="基于RxSwift的MVVMR架构(一)思想、基本原理及初步实现摘要本系列文章将详细分析iOS的MVVMR架构模式，并基于Swift的响应式、函数式编程框架RxSwift提供相应的实现。系列共分为两个部分：
+
+MVVMR架构的思想、基本原理及其初步实现
+架构中某些细节部分的实现封装以及实战
+
+这篇文章讲述的是第一部分的内容，我会先把架构的各个组成粗略地罗列出，然后再对它们进行详细的分析，最后结合代">
+<meta name="twitter:image" content="http://7xsfp9.com1.z0.glb.clouddn.com/%E5%9F%BA%E6%9C%AC%E6%9E%84%E6%88%90.png">
+
+  
+
+  
+    <link rel="icon" href="/images/icon.ico">
+  
+  
+  <link href="/css/styles.css?v=5f7f1d39" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?0e70ef65f0d3c8a1e0d427edc322fc77";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+</head>
+
+<body>
+
+  
+    <a href="#modal-one" class="toolbox-mobile">盒子</a>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/category/"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/project/"
+            target="_self"
+            >
+            项目
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#基于RxSwift的MVVMR架构-一-思想、基本原理及初步实现"><span class="toc-text">基于RxSwift的MVVMR架构(一)思想、基本原理及初步实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#摘要"><span class="toc-text">摘要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MVVMR基本蓝图"><span class="toc-text">MVVMR基本蓝图</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#架构目的"><span class="toc-text">架构目的</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#View-视图的布局、渲染、动画、UIViewController的转场"><span class="toc-text">View : 视图的布局、渲染、动画、UIViewController的转场</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ViewModel-纯业务逻辑处理"><span class="toc-text">ViewModel : 纯业务逻辑处理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Model-提供数据，如网络请求数据，本地数据库、UserDefaults"><span class="toc-text">Model : 提供数据，如网络请求数据，本地数据库、UserDefaults</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#架构思想"><span class="toc-text">架构思想</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#各模块详解"><span class="toc-text">各模块详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#View"><span class="toc-text">View</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ViewModel"><span class="toc-text">ViewModel</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Model"><span class="toc-text">Model</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Input-amp-Output"><span class="toc-text">Input & Output</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Binder-amp-UnitCase"><span class="toc-text">Binder & UnitCase</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Router"><span class="toc-text">Router</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#架构实现"><span class="toc-text">架构实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#协议部分"><span class="toc-text">协议部分</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Input-amp-Output-Protocol"><span class="toc-text">Input & Output Protocol</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Provider-Protocol"><span class="toc-text">Provider Protocol</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#View-和-ViewModel-实现"><span class="toc-text">View 和 ViewModel 实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#UnitCase"><span class="toc-text">UnitCase</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Binder"><span class="toc-text">Binder</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Router-1"><span class="toc-text">Router</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#架构使用"><span class="toc-text">架构使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#View-层"><span class="toc-text">View 层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ViewModel-层"><span class="toc-text">ViewModel 层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MVVMUnitCase"><span class="toc-text">MVVMUnitCase</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-基于RxSwift的MVVMR架构(一)思想、基本原理及初步实现" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">基于RxSwift的MVVMR架构(一)思想、基本原理及初步实现</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2017.02.27</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>Tangent 汤骏炜</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/iOS/">iOS</a>
+  </span>
+
+
+
+      
+
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h1 id="基于RxSwift的MVVMR架构-一-思想、基本原理及初步实现"><a href="#基于RxSwift的MVVMR架构-一-思想、基本原理及初步实现" class="headerlink" title="基于RxSwift的MVVMR架构(一)思想、基本原理及初步实现"></a>基于RxSwift的MVVMR架构(一)思想、基本原理及初步实现</h1><h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>本系列文章将详细分析iOS的<code>MVVMR</code>架构模式，并基于Swift的响应式、函数式编程框架<code>RxSwift</code>提供相应的实现。<br>系列共分为两个部分：</p>
+<ol>
+<li>MVVMR架构的思想、基本原理及其初步实现</li>
+<li>架构中某些细节部分的实现封装以及实战</li>
+</ol>
+<p>这篇文章讲述的是第一部分的内容，我会先把架构的各个组成粗略地罗列出，然后再对它们进行详细的分析，最后结合代码进行实现。若文章中存在模糊或不合理的地方，还请各位包涵，也欢迎大家向我进行反馈。</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>寒假期间，我和小组的伙伴们针对团队之前的一款还未上线的项目进行大重构，开发语言从Objective-C转到了Swift，作为组长，我负责了整个项目架构的搭建。在旧项目中，我是基于<code>ReactiveCocoa</code>搭起了<code>MVVM</code>这种架构模式。鉴于此架构模式优点颇多，并且在前面也已实践过，所以在新项目里我也依旧沿用了<code>MVVM</code>，不过用于事件以及数据绑定的框架就改用了<code>RxSwift</code>。关于<code>RxSwift</code>，我在之前也写过一篇文章: <a href="http://www.jianshu.com/p/431f645cb805" target="_blank" rel="external">RxSwift进阶与实战</a> ，这篇文章的实战部分也提供了一个简单的<code>MVVM</code>架构模式实现。</p>
+<p>分析下现在移动端开发比较热门的几款架构模式：<code>MVC</code>, <code>MVP</code>, <code>MVVM</code>, <code>VIPER</code>，除去最经典的模式<code>MVC</code>外，其余的模式究其根本，其实都是从<code>MVC</code>衍变而来，并且都是针对其中的<code>Controller</code>层进行分层再细化，而本文所针对的<code>MVVM</code>架构模式，原理上它为了减轻<code>MVC</code>架构中<code>Controller</code>层的业务负担，将<code>Controller</code>再细分为两个部分，一部分跟原本的<code>View</code>层合并在一起形成新的<code>View</code>层，另一部分就变成了<code>ViewModel</code>层。（这里所说的Controller并不能指代iOS中的UIViewController）对于我来说<code>MVP</code>跟<code>MVVM</code>极其相似，如果偏要让我说出它们的不同，我会主观地认为<code>MVP</code>中<code>Presentation</code>做的事情只是数据与事件的解析转换等业务逻辑，而<code>MVVM</code>的<code>ViewModel</code>中除了这些业务逻辑外，里面还可以存有某些状态变量，像在<code>RAC</code>中，专门有一个宏用于状态变量与信号的绑定：<code>RAC(viewModel, userToken) = userTokenSignal</code>，而<code>RxSwift</code>我个人认为是倾向于流的转换，尽量避免出现状态变量。所以重构项目中有时候我会想: “我TM是在写MVVM还是MVP？！”，算了，不要在意这些细节…</p>
+<p>在上面我一直都在说<code>MVVM</code>模式，但是文章的标题呈现的却是<code>MVVMR</code>，<strong>R</strong>其实是我“自作主张”增添的<code>Router(路由器)</code>，这个设计在下面会说到。</p>
+<p>接下来我就本此项目的架构，向大家进行详细的分析。</p>
+<h2 id="MVVMR基本蓝图"><a href="#MVVMR基本蓝图" class="headerlink" title="MVVMR基本蓝图"></a>MVVMR基本蓝图</h2><p>首先给大家看两张示意图：<br><img src="http://7xsfp9.com1.z0.glb.clouddn.com/%E5%9F%BA%E6%9C%AC%E6%9E%84%E6%88%90.png" alt="基本构成"></p>
+<p><img src="http://7xsfp9.com1.z0.glb.clouddn.com/%E6%80%BB%E4%BD%93%E6%B5%81%E8%BD%AC%E6%8D%A2.png" alt="事件、数据流转换"></p>
+<p>这两张图分别表示了<code>MVVMR</code>架构中的基本构成要素和流转换示意。<br>在图从，我们可以看到整个架构的组成要素分别是：<code>View(视图)</code>、<code>ViewModel(视图模型)</code>、<code>Input(输入)</code>、<code>Output(输出)</code>、<code>Router(路由器)</code>、<code>UnitCase(单位实例)</code>，    其中，<code>View</code>与<code>Input</code>同组成<code>View</code>层，<code>ViewModel</code>与<code>Output</code>组成<code>ViewModel</code>层，<code>UnitCase</code>为一个简单的数据结构，用于保存<code>View</code>和<code>ViewModel</code>的关系，用于后期绑定器对它们相互间进行绑定，这个在后面会详细说到。</p>
+<p>接下来有两方面需要提及：</p>
+<h3 id="架构目的"><a href="#架构目的" class="headerlink" title="架构目的"></a>架构目的</h3><p>前面说到，传统的<code>MVC</code>架构中，<code>ViewController</code>由于要处理过多的业务逻辑以及对<code>View</code>层的显示逻辑，会变得越来越复杂，最后将会成为一个重量级角色，在开发中容易乱了手脚，并且严重缺乏可维护性。<code>MVVM</code>架构致力于减轻<code>ViewController</code>层的负担，将一部分属于纯业务逻辑处理放到了<code>ViewModel</code>中，而对于<code>View</code>的显示逻辑，如UIView布局渲染、动画等就一并归于<code>View</code>层。</p>
+<h4 id="View-视图的布局、渲染、动画、UIViewController的转场"><a href="#View-视图的布局、渲染、动画、UIViewController的转场" class="headerlink" title="View : 视图的布局、渲染、动画、UIViewController的转场"></a>View : 视图的布局、渲染、动画、UIViewController的转场</h4><h4 id="ViewModel-纯业务逻辑处理"><a href="#ViewModel-纯业务逻辑处理" class="headerlink" title="ViewModel : 纯业务逻辑处理"></a>ViewModel : 纯业务逻辑处理</h4><h4 id="Model-提供数据，如网络请求数据，本地数据库、UserDefaults"><a href="#Model-提供数据，如网络请求数据，本地数据库、UserDefaults" class="headerlink" title="Model : 提供数据，如网络请求数据，本地数据库、UserDefaults"></a>Model : 提供数据，如网络请求数据，本地数据库、UserDefaults</h4><p>有一点需要注意的是，因为<code>MVVM</code>比起<code>MVC</code>来说在层级的数量上有所增加，所以我们需要再从原来的基础上多维护了某些东西，这很容易造成架构中耦合度的上升，为了降低耦合，我在架构中引入了<code>Input</code>以及<code>Output</code>的概念，后面有详细的分析。</p>
+<h3 id="架构思想"><a href="#架构思想" class="headerlink" title="架构思想"></a>架构思想</h3><p>整套架构围绕着的一个思想是: <strong>事件与数据基于流的抽象</strong><br>我们把事件（如用户的触发事件）以及数据（网络、本地数据）抽象成在一条在管道中流动的<strong>流</strong>，每一次的业务处理，都像是一个接入了这条管道中的流处理器，将流入的流转换加工，并输出处理过后的流。因为事件或数据可能会涉及多个不同的业务处理，所以在管道中也可以接入多个流处理器，让事件和数据在管道中流动的时候发生连锁反应。<br><img src="http://7xsfp9.com1.z0.glb.clouddn.com/%E6%B5%81%E8%BD%AC%E6%8D%A2%E7%BB%86%E8%8A%82.png" alt="流思想"><br>在本架构中，<code>RxSwift</code>框架就是这条包裹着事件与数据流的管道。</p>
+<h2 id="各模块详解"><a href="#各模块详解" class="headerlink" title="各模块详解"></a>各模块详解</h2><p>接下来我就MVVMR架构中各重要模块的概念，结合iOS的实际开发来详细说明。</p>
+<h3 id="View"><a href="#View" class="headerlink" title="View"></a>View</h3><p><code>View</code>层做的东西都只是跟视图有关系，布局、渲染、动画等等，并不会接触与业务相关的内容。它汇总视图的触发事件或数据，构建出<code>Input</code>传入<code>ViewModel</code>，并接受<code>ViewModel</code>传过来的<code>Output</code>，刷新视图显示。<br>架构中，我把<code>UIViewController</code>也归入了<code>View</code>层中，因为个人觉得<code>ViewController</code>与视图有着非常密切的关联，若要强制性分离职责，应该将<code>ViewController</code>里面的所有业务逻辑抽离出来，让<code>UIViewController</code>其只充当<code>View</code>的一部分。<br><code>View</code>中还持有路由器<code>Router</code>，用于视图的跳转。（接下来会说到）</p>
+<h3 id="ViewModel"><a href="#ViewModel" class="headerlink" title="ViewModel"></a>ViewModel</h3><p>说简单点，<code>ViewModel</code>做的事情就只有一件: <strong>转换</strong>，说复杂点，<code>ViewModel</code>需要将<code>View</code>传入的<code>Input</code>中所有的事件数据流进行转换处理，最终将完成处理后的流放入<code>Output</code>中传递给<code>View</code>，所有的业务逻辑都是在这里进行实现，其中涉及到数据的请求（网络、本地）需要向<code>Model</code>请求获取。</p>
+<h3 id="Model"><a href="#Model" class="headerlink" title="Model"></a>Model</h3><p>模型层，数据提供者。提供网络请求数据，本地数据库、UserDefaults缓存数据，支持对数据进行解析处理。不过在实际项目中，<code>Model</code>层并没有很明显地表示出来，我是将网络请求、JSON数据解析和本地缓存封装在一起构建出一个较为强大的“流转换器”，其也算是Model层的一部分。相关网络请求的封装我会在下一篇中谈到。</p>
+<h3 id="Input-amp-Output"><a href="#Input-amp-Output" class="headerlink" title="Input &amp; Output"></a>Input &amp; Output</h3><p><code>Input</code>和<code>Output</code>其实是一个容器，里面装载着各种事件数据流，在<code>View</code>与<code>ViewModel</code>通信中起到传递的作用。<br>看到这里，可能有人会认为，<code>View</code>与<code>ViewModel</code>之间的相互通信较为简单，只需通过方法去调用即可，没必要又另外再构建多一个<code>Input</code>和<code>Output</code>。其实，在框架设计中，我构建了这两个东西，主要目的就是实现<code>View</code>层与<code>ViewModel</code>层的完全解耦。架构在工作的时候，<code>View</code>以及<code>ViewModel</code>各自维护着自己的运作，且它们之间不存在过多的耦合，即两层之间互不关注，也互不知道对方的实际情况，它们间的通信只依赖于<code>Input</code>和<code>Output</code>。这样，在开发以及后期的维护中，我们在对其中一层进行修改或重构时，另外一层可完全不需要改动。<br>在实际项目中，我使用的是Swift的<code>struct(结构体)</code>去实现<code>Input</code>和<code>Output</code>，并将每个事件数据流作为结构体中的属性来持有。这样做的好处是每个事件数据流都能清晰明了地列举在代码中，通过观察<code>Input</code>的属性，我们能知道<code>View</code>能够产出多少种视图触发的事件数据流，通过观察<code>Output</code>的属性，我们也得知<code>View</code>最终要接收哪些更新视图的事件数据流。</p>
+<p>这里总结下设计<code>Input</code>与<code>Output</code>的目的：</p>
+<ul>
+<li>实现<code>View</code>与<code>ViewModel</code>层之间的解耦</li>
+<li>能够清晰罗列出各种事件数据流</li>
+</ul>
+<h3 id="Binder-amp-UnitCase"><a href="#Binder-amp-UnitCase" class="headerlink" title="Binder &amp; UnitCase"></a>Binder &amp; UnitCase</h3><p>首先来说下<code>Binder（绑定器）</code>，它要做的事情就是将<code>View</code>以及<code>ViewModel</code>进行绑定。这里就抛出了一个问题： <strong><em>我们为什么需要绑定？</em></strong><br>我们知道，iOS应用是以页面为单元的，一个页面就是一套<code>MVC</code>或<code>MVVM</code>工作的结果。而普通的应用本身是拥有非常多的页面，若我们使用的架构模式是<code>MVVM</code>，这就需要创建同等数量的若干套<code>MVVM</code>，而<code>MVVM</code>的构建需要将各层各模块联系绑定在一起。若每次我们在需要跳转到一个新页面时才去对架构进行绑定，这就增大了代码的复杂度以及冗余度，所以，我们需要一套机制，在我们需要呈现一个新页面时，自动帮我们将架构各层各模块进行绑定。在<code>MVVMR</code>架构中，我使用的是<code>Binder</code>来实现这种机制。<br>但是，在绑定时，我们必须要将<code>View</code>跟<code>ViewModel</code>一一对应起来，不可能说将一个页面的<code>View</code>跟其他页面的<code>ViewModel</code>进行绑定。所以，为了明确这种一一对应关系，我引入了<code>UnitCase</code>，它是一个存有<code>View</code>和<code>ViewController</code>对应关系的容器。通过<code>UnitCase</code>，<code>Binder</code>就能正确绑定<code>View</code>和<code>ViewModel</code>层。</p>
+<h3 id="Router"><a href="#Router" class="headerlink" title="Router"></a>Router</h3><p>路由器就是为了实现各页面之间的跳转。为什么架构中不直接使用iOS API提供的<code>pushViewController</code>、<code>presentViewController</code>等方法呢？这里考虑到两个问题：</p>
+<ul>
+<li>页面需要创建后才能够进行跳转，而在创建页面的时候需要进行绑定。如果将页面绑定跟跳转封装在一起将带来较大的便利。</li>
+<li>页面间需要传递事件和数据，通常的做法是使用方法传递（正向传递）或者代理模式（反向传递），这样做耦合度较大。需要一种实现页面间传递数据且耦合度较低的机制。</li>
+</ul>
+<p>路由器就是解决以上问题的优雅方案，它与<code>Binder（绑定器）</code>密切结合，并提供页面间数据传递的接口。所以，这篇文章所讲述的架构模式名为<strong>MVVMR（传统MVVM+Router）</strong>。</p>
+<h2 id="架构实现"><a href="#架构实现" class="headerlink" title="架构实现"></a>架构实现</h2><p>下面就是”Show My Code”的时间，以下我会贴出初步实现<code>MVVMR</code>架构的相关代码，对于一些更为细节的实现封装，我会在下一篇文章中谈到。</p>
+<h3 id="协议部分"><a href="#协议部分" class="headerlink" title="协议部分"></a>协议部分</h3><p>Swift作为一门倾于“面向协议”编程范式的语言，编写的时候当然要更好地去发挥其协议的作用。</p>
+<h4 id="Input-amp-Output-Protocol"><a href="#Input-amp-Output-Protocol" class="headerlink" title="Input &amp; Output Protocol"></a>Input &amp; Output Protocol</h4><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// Input Output</span></span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">ViewToViewModelInput</span> </span>&#123;</span><br><span class="line">    <span class="keyword">init</span>(view: <span class="type">MVVMView</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">ViewModelToViewOutput</span> </span>&#123;</span><br><span class="line">    <span class="keyword">init</span>(viewModel: <span class="type">MVVMViewModel</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面就是<code>Input</code>和<code>Output</code>的协议定义，从名字上可以很清晰地看出它们的作用，一个是从<code>View</code>传递到<code>ViewModel</code>，而另一个则是反过来传递。它们的构造都需要自身的发出者。</p>
+<h4 id="Provider-Protocol"><a href="#Provider-Protocol" class="headerlink" title="Provider Protocol"></a>Provider Protocol</h4><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// Provider</span></span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">ViewToViewModelInputProvider</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> inputType: <span class="type">ViewToViewModelInput</span>.<span class="type">Type</span>? &#123; <span class="keyword">get</span> &#125;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">provideInput</span><span class="params">()</span></span> -&gt; <span class="type">ViewToViewModelInput</span>?</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">ViewToViewModelInputProvider</span> <span class="title">where</span> <span class="title">Self</span>: <span class="title">MVVMView</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">provideInput</span><span class="params">()</span></span> -&gt; <span class="type">ViewToViewModelInput</span>? &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.inputType?.<span class="keyword">init</span>(view: <span class="keyword">self</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">protocol</span> <span class="title">ViewModelToViewOutputProvider</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> outputType: <span class="type">ViewModelToViewOutput</span>.<span class="type">Type</span>? &#123; <span class="keyword">get</span> &#125;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">provideOutput</span><span class="params">()</span></span> -&gt; <span class="type">ViewModelToViewOutput</span>?</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">ViewModelToViewOutputProvider</span> <span class="title">where</span> <span class="title">Self</span>: <span class="title">MVVMViewModel</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">provideOutput</span><span class="params">()</span></span> -&gt; <span class="type">ViewModelToViewOutput</span>? &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.outputType?.<span class="keyword">init</span>(viewModel: <span class="keyword">self</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>Provider（提供者）</code>是针对<code>Input</code>跟<code>Output</code>的构建而设计的，意为<code>Input</code>与<code>Output</code>的提供者。每个提供者里具有一个元类类型的属性以及一个提供方法，而在分类中，提供方法已经帮我们去实现了。所以在实现提供者协议的时候，我们只需提供相应的<code>Input</code>或<code>Output</code>类型即可。</p>
+<h3 id="View-和-ViewModel-实现"><a href="#View-和-ViewModel-实现" class="headerlink" title="View 和 ViewModel 实现"></a>View 和 ViewModel 实现</h3><p><code>View</code>以及<code>ViewModel</code>的实现，我是拟好了两个抽象类：<code>MVVMView</code>和<code>MVVMViewModel</code>。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MARK: - View &amp; ViewModel</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MVVMView</span>: <span class="title">UIViewController</span>, <span class="title">ViewToViewModelInputProvider</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> viewModelType: <span class="type">MVVMViewModel</span>.<span class="type">Type</span>?</span><br><span class="line">    <span class="keyword">private</span>(<span class="keyword">set</span>) <span class="keyword">var</span> router: <span class="type">Router</span>!</span><br><span class="line">    <span class="keyword">var</span> viewModel: <span class="type">MVVMViewModel</span>?</span><br><span class="line">    <span class="keyword">var</span> inputType: <span class="type">ViewToViewModelInput</span>.<span class="type">Type</span>? &#123; <span class="keyword">return</span> <span class="literal">nil</span> &#125;</span><br><span class="line">    <span class="keyword">var</span> receive: <span class="type">Driver</span>&lt;<span class="type">Any</span>&gt;?</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">required</span> <span class="keyword">init</span>(<span class="number">_</span> viewModelType: <span class="type">MVVMViewModel</span>.<span class="type">Type</span>?) &#123;</span><br><span class="line">        <span class="keyword">self</span>.viewModelType = viewModelType</span><br><span class="line">        <span class="keyword">super</span>.<span class="keyword">init</span>(nibName: <span class="literal">nil</span>, bundle: <span class="literal">nil</span>)</span><br><span class="line">        <span class="keyword">self</span>.router = <span class="type">Router</span>(from: <span class="keyword">self</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">required</span> <span class="keyword">init</span>?(coder aDecoder: <span class="type">NSCoder</span>) &#123;</span><br><span class="line">        <span class="built_in">fatalError</span>(<span class="string">"init(coder:) has not been implemented"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">viewDidLoad</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.viewDidLoad()</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> viewModelType = <span class="keyword">self</span>.viewModelType, <span class="keyword">let</span> input = <span class="keyword">self</span>.provideInput() &#123;</span><br><span class="line">            <span class="keyword">self</span>.viewModel = viewModelType.<span class="keyword">init</span>(input: input)</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">let</span> output = <span class="keyword">self</span>.viewModel!.provideOutput() &#123;</span><br><span class="line">                rxDrive(viewModelOutput: output)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">rxDrive</span><span class="params">(viewModelOutput: ViewModelToViewOutput)</span></span> &#123; crash(<span class="string">"抽象方法,在此进行绑定,此方法必须重写!"</span>) &#125;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">provideCallBack</span><span class="params">()</span></span> -&gt; <span class="type">Driver</span>&lt;<span class="type">Any</span>&gt;? &#123; <span class="keyword">return</span> <span class="literal">nil</span> &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> disposeBag = <span class="type">DisposeBag</span>()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MVVMViewModel</span>: <span class="title">NSObject</span>, <span class="title">ViewModelToViewOutputProvider</span> </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> input: <span class="type">ViewToViewModelInput</span></span><br><span class="line">    <span class="keyword">var</span> outputType: <span class="type">ViewModelToViewOutput</span>.<span class="type">Type</span>? &#123; <span class="keyword">return</span> <span class="literal">nil</span> &#125;</span><br><span class="line">    <span class="keyword">required</span> <span class="keyword">init</span>(input: <span class="type">ViewToViewModelInput</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.input = input</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们先看这两个抽象类的继承以及协议关系：<code>MVVMView</code>继承的是<code>UIViewController</code>，所以这时候<code>UIViewController</code>作为<code>View</code>层的一员，只负责视图的显示相关，并不会接触到业务逻辑的处理。<code>MVVMViewModel</code>则简单地继承<code>NSObject</code>。这两个抽象类都是实现了<code>Provider</code>协议，担任了<code>Input</code>和<code>Output</code>的提供职责。在提供者协议实现元类型的属性时，我返回的是<code>nil</code>，若继承抽象类的子类没有重写此属性，则告诉框架自己并没有提供了<code>Input</code>或<code>Output</code>，对此框架就取消对它们的绑定。<br>我们可以看到，<code>MVVMView</code>对<code>MVVMViewModel</code>进行了强引用，我们只需持有<code>MVVMView</code>实例，就能依旧维持<code>MVVMViewModel</code>的存在；并且，<code>MVVMViewModel</code>在<code>MVVMView</code>中的访问修饰为<strong>private</strong>，因此所有继承<code>MVVMView</code>都抽象类都无法访问此属性，做到了两者的高度解耦。<br>这里在详细看回<code>MVVMView</code>，其具有<code>router（路由器）</code>属性，通过路由器，我们可以进行页面的跳转；另外有几个抽象的属性和方法：</p>
+<ul>
+<li>receive : 用于页面的通信，与<code>Router（路由器密切相关）</code>，当此页面收到上一个页面所传递进来的事件数据时，<code>receive</code>就会赋入这些信息。在设计上，<code>receive</code>的赋值紧接在<code>MVVMView</code>的初始化之后，所以，我们不可以在重写的初始化方法中获取<code>receive</code>的值。</li>
+<li>rxDrive(viewModelOutput:) : 这个方法就是用于将从<code>ViewModel</code>层出来的事件数据流驱动整个页面的显示，这方法中，我们可以通过传进来的参数<code>Ouput</code>驱动视图的刷新显示、进行页面的跳转。这个方法也是<code>ViewModel</code>层向<code>View</code>层传递信息的唯一出口。</li>
+<li>provideCallBack() : 此方法是用于页面跳转中的反向数据传递，即将数据从本页面传到上一个页面，因为我们使用的是响应式的<code>RxSwift</code>框架，所以数据的反向传递就不需要使用到闭包或代理模式。在后面的<code>Router</code>实现中会说到它的机制。</li>
+<li>disposeBag : 用于<code>RxSwift</code>资源的回收。</li>
+</ul>
+<p>在<code>MVVMView</code>的<code>viewDidLoad()</code>方法中，我们进行<code>MVVMView</code>和<code>MVVMViewModel</code>的关联，如果<code>MVVMView</code>和<code>MVVMViewModel</code>没有提供<code>Input</code>和<code>Output</code>，则表明此时<code>View</code>和<code>ViewModel</code>层没有通信，所以也就不会调用<code>rxDrive</code>方法了。</p>
+<h3 id="UnitCase"><a href="#UnitCase" class="headerlink" title="UnitCase"></a>UnitCase</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MARK: - Unit</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">MVVMUnit</span> </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> viewType: <span class="type">MVVMView</span>.<span class="type">Type</span></span><br><span class="line">    <span class="keyword">let</span> viewModelType: <span class="type">MVVMViewModel</span>.<span class="type">Type</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">MVVMUnit</span>: <span class="title">ExpressibleByArrayLiteral</span> </span>&#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">Element</span> = <span class="type">AnyClass</span></span><br><span class="line">    <span class="keyword">init</span>(arrayLiteral elements: <span class="type">Element</span>...) &#123;</span><br><span class="line">        <span class="keyword">guard</span> elements.<span class="built_in">count</span> == <span class="number">2</span> <span class="keyword">else</span> &#123; crash(<span class="string">"单元初始化参数长度错误"</span>) &#125;</span><br><span class="line">        <span class="keyword">guard</span> <span class="keyword">let</span> viewType = elements[<span class="number">0</span>] <span class="keyword">as</span>? <span class="type">MVVMView</span>.<span class="type">Type</span> <span class="keyword">else</span> &#123; crash(<span class="string">"单元初始化参数类型错误"</span>) &#125;</span><br><span class="line">        <span class="keyword">guard</span> <span class="keyword">let</span> viewModelType = elements[<span class="number">1</span>] <span class="keyword">as</span>? <span class="type">MVVMViewModel</span>.<span class="type">Type</span> <span class="keyword">else</span> &#123; crash(<span class="string">"单元初始化参数类型错误"</span>) &#125;</span><br><span class="line">        <span class="keyword">self</span>.viewType = viewType</span><br><span class="line">        <span class="keyword">self</span>.viewModelType = viewModelType</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">MVVMUnitCase</span>: <span class="title">RawRepresentable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">RawValue</span> = <span class="type">MVVMUnit</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> rawValue: <span class="type">MVVMUnit</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(rawValue: <span class="type">RawValue</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.rawValue = rawValue</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的代码使用到了一个函数<code>crash(_ message:)</code>，为断言函数，这里就不需要给出具体实现了。<br>我们先来看<code>MVVMUnit</code>，它具有两个元类型的属性，分别代表一个页面中的<code>MVVMView</code>和<code>MVVMViewModel</code>类型，通过这种关系，绑定器就能正确地按照一一对应关系绑定<code>MVVMView</code>和<code>MVVMViewModel</code>。<code>MVVMUnit</code>还实现了<code>ExpressibleByArrayLiteral</code>，我们可以直接简便地通过数组字面量来初始化<code>MVVMUnit</code>。<br>而<code>MVVMUnitCase</code>则是对<code>MVVMUnit</code>的再一次封装，其实现了<code>RawRepresentable</code>协议，这样我们就能像使用枚举一样通过点<code>.</code>语法来创建它。<br>使用的话我这里举个例子，加入现在我们的项目中需要用到两个页面，一个是主页面”main”，一个是登录页面”login”，它们都有对应的<code>MVVMView</code>和<code>MVVMViewModel</code>：<code>MainMVVMView、MainMVVMViewModel</code>、<code>LoginMVVMView、LoginMVVMViewModel</code>，我们则需要在<code>MVVMUnitCase</code>中进行添加：<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">MVVMUnitCase</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">let</span> main = <span class="type">MVVMUnitCase</span>(rawValue: [<span class="type">MainMVVMView</span>.<span class="keyword">self</span>, <span class="type">MainMVVMViewModel</span>.<span class="keyword">self</span>])</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">let</span> simpleInfo = <span class="type">MVVMUnitCase</span>(rawValue: [<span class="type">LoginMVVMView</span>.<span class="keyword">self</span>, <span class="type">LoginMVVMViewModel</span>.<span class="keyword">self</span>])</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="Binder"><a href="#Binder" class="headerlink" title="Binder"></a>Binder</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  Binder</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">MVVMBinder</span> </span>&#123;</span><br><span class="line">    <span class="comment">/// 根据标识符获取视图，会在背后做视图与视图模型的绑定</span></span><br><span class="line">    <span class="comment">///</span></span><br><span class="line">    <span class="comment">/// - Parameter identifier: 标识符</span></span><br><span class="line">    <span class="comment">/// - Returns: 返回已经绑定好了的视图</span></span><br><span class="line">    <span class="keyword">static</span> <span class="function"><span class="keyword">func</span> <span class="title">obtainBindedView</span><span class="params">(<span class="number">_</span> unitCase: MVVMUnitCase)</span></span> -&gt; <span class="type">MVVMView</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> unit = unitCase.rawValue</span><br><span class="line">        <span class="keyword">let</span> viewType = unit.viewType</span><br><span class="line">        <span class="keyword">let</span> viewModelType = unit.viewModelType</span><br><span class="line">        <span class="keyword">let</span> view = viewType.<span class="keyword">init</span>(viewModelType)</span><br><span class="line">        <span class="keyword">return</span> view</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>绑定器做的事情是对<code>MVVMView</code>和<code>MVVMViewModel</code>的绑定，它具有一个静态方法<code>obtainBindedView(_ unitCase:)</code>在这个方法中我们需要传入一个<code>MVVMUnitCase</code>的实例，然后绑定器会帮我们创建<code>MVVMView</code>和<code>MVVMViewModel</code>实例并进行绑定，最后将返回<code>MVVMView</code>的实例，我们拿到这个实例就能进行页面的跳转。</p>
+<h3 id="Router-1"><a href="#Router-1" class="headerlink" title="Router"></a>Router</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MARK: - Router</span></span><br><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">RouterType</span> </span>&#123;</span><br><span class="line">    <span class="keyword">case</span> push(<span class="type">MVVMUnitCase</span>)</span><br><span class="line">    <span class="keyword">case</span> present(<span class="type">MVVMUnitCase</span>)</span><br><span class="line">    <span class="keyword">case</span> root(<span class="type">MVVMUnitCase</span>)</span><br><span class="line">    <span class="keyword">case</span> back</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Router</span> </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> from: <span class="type">MVVMView</span></span><br><span class="line">    <span class="keyword">init</span>(from: <span class="type">MVVMView</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.from = from</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">route</span><span class="params">(<span class="number">_</span> type: RouterType, send: Driver&lt;Any&gt;? = <span class="literal">nil</span>)</span></span> -&gt; <span class="type">Driver</span>&lt;<span class="type">Any</span>&gt;? &#123;</span><br><span class="line">        <span class="keyword">switch</span> type &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="keyword">let</span> .push(unitCase):</span><br><span class="line">            <span class="keyword">let</span> view = <span class="type">MVVMBinder</span>.obtainBindedView(unitCase)</span><br><span class="line">            view.receive = send</span><br><span class="line">            from.navigationController?.pushViewController(view, animated: <span class="literal">true</span>)</span><br><span class="line">            <span class="keyword">return</span> view.provideCallBack()</span><br><span class="line">        <span class="keyword">case</span> <span class="keyword">let</span> .present(unitCase):</span><br><span class="line">            <span class="keyword">let</span> view = <span class="type">MVVMBinder</span>.obtainBindedView(unitCase)</span><br><span class="line">            view.receive = send</span><br><span class="line">            from.present(view, animated: <span class="literal">true</span>, completion: <span class="literal">nil</span>)</span><br><span class="line">            <span class="keyword">return</span> view.provideCallBack()</span><br><span class="line">        <span class="keyword">case</span> <span class="keyword">let</span> .root(unitCase):</span><br><span class="line">            <span class="keyword">let</span> view = <span class="type">MVVMBinder</span>.obtainBindedView(unitCase)</span><br><span class="line">            view.receive = send</span><br><span class="line">            <span class="type">UIApplication</span>.shared.keyWindow?.rootViewController = view</span><br><span class="line">            <span class="keyword">return</span> view.provideCallBack()</span><br><span class="line">        <span class="keyword">case</span> .back:</span><br><span class="line">            <span class="keyword">if</span> from.presentationController != <span class="literal">nil</span> &#123;</span><br><span class="line">                from.dismiss(animated: <span class="literal">true</span>, completion: <span class="literal">nil</span>)</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="number">_</span> = from.navigationController?.popViewController(animated: <span class="literal">true</span>)</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">MVVMView</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">route</span><span class="params">(<span class="number">_</span> type: RouterType, send: Driver&lt;Any&gt;? = <span class="literal">nil</span>)</span></span> -&gt; <span class="type">Driver</span>&lt;<span class="type">Any</span>&gt;? &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">self</span>.router.route(type, send: send)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>常见的页面跳转为导航控制器的<code>Push</code>、<code>Pop</code>，模态的<code>Present</code>、<code>Dismiss</code>，<code>UIWindow</code>的<code>rootViewController（根视图控制器切换）</code>，我们把这些跳转作为一个枚举设计了<code>RouterType</code>，其中<code>back</code>则代表<code>Pop</code>和<code>Dismiss</code>，在使用<code>RouterType</code>时，我们将目标的<code>MVVMUnitCase</code>作为枚举的关联值传入。<br>对于路由器Router，我们需要使用一个<code>MVVMView</code>来初始化它，代表跳转是从这个<code>MVVMView</code>开始的。调用路由器中的<code>route(_ type: , send:)</code>方法就能进行页面的跳转，其中，参数<code>send</code>就是要传递到下一个页面的事件数据，而方法的返回值则为下一个页面反向传递过来的事件数据，通过<code>MVVMView</code>的抽象方法<code>provideCallBack()</code>。<br>我也为<code>MVVMView</code>创建了一个扩展，在扩展中我们可以直接调用自身路由器的路由方法。<br>这里贴出个路由器的使用例子:<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">_</span> = view.route(.push(.login), send: <span class="type">Driver</span>.just(userToken))</span><br></pre></td></tr></table></figure></p>
+<p>因为<code>MVVMUnitCase</code>实现了<code>RawRepresentable</code>协议，所以我们可以直接通过点语法来取得登录的Unit: <code>.login</code></p>
+<h2 id="架构使用"><a href="#架构使用" class="headerlink" title="架构使用"></a>架构使用</h2><p>到此，整套架构的实现就基本完成了，下面我们来结合<code>RxSwift</code>来构建一个使用此套架构的Demo:</p>
+<h3 id="View-层"><a href="#View-层" class="headerlink" title="View 层"></a>View 层</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DemoMVVMView</span>: <span class="title">MVVMView</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">viewDidLoad</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.viewDidLoad()</span><br><span class="line">        <span class="keyword">self</span>.view.addSubview(<span class="keyword">self</span>.mButton)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    fileprivate <span class="built_in">lazy</span> <span class="keyword">var</span> mButton: <span class="type">UIButton</span> = &#123;</span><br><span class="line">        $<span class="number">0</span>.frame = <span class="keyword">self</span>.view.bounds</span><br><span class="line">        $<span class="number">0</span>.setTitle(<span class="string">"点击"</span>, <span class="keyword">for</span>: .normal)</span><br><span class="line">        <span class="keyword">return</span> $<span class="number">0</span></span><br><span class="line">    &#125;(<span class="type">UIButton</span>())</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">var</span> inputType: <span class="type">ViewToViewModelInput</span>.<span class="type">Type</span>? &#123; <span class="keyword">return</span> <span class="type">DemoInput</span>.<span class="keyword">self</span> &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">rxDrive</span><span class="params">(viewModelOutput: ViewModelToViewOutput)</span></span> &#123;</span><br><span class="line">        <span class="keyword">let</span> output = viewModelOutput <span class="keyword">as</span>! <span class="type">DemoOutput</span></span><br><span class="line">        output.color.drive(<span class="keyword">self</span>.rx.updateButtonBackgroundColor).addDisposableTo(<span class="keyword">self</span>.disposeBag)</span><br><span class="line">        output.title.drive(<span class="keyword">self</span>.rx.updateButtonTitle).addDisposableTo(<span class="keyword">self</span>.disposeBag)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// MARK: - Reactive</span></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">Reactive</span> <span class="title">where</span> <span class="title">Base</span>: <span class="title">DemoMVVMView</span> </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> updateButtonTitle: <span class="type">AnyObserver</span>&lt;<span class="type">String</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="type">UIBindingObserver</span>&lt;<span class="type">Base</span>, <span class="type">String</span>&gt;(<span class="type">UIElement</span>: base) &#123; view, newTitle <span class="keyword">in</span></span><br><span class="line">            view.mButton.setTitle(newTitle, <span class="keyword">for</span>: .normal)</span><br><span class="line">        &#125;.asObserver()</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> updateButtonBackgroundColor: <span class="type">AnyObserver</span>&lt;<span class="type">UIColor</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="type">UIBindingObserver</span>&lt;<span class="type">Base</span>, <span class="type">String</span>&gt;(<span class="type">UIElement</span>: base) &#123; view, newColor <span class="keyword">in</span></span><br><span class="line">            view.mButton.backgroundColor = newColor</span><br><span class="line">            &#125;.asObserver()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// MARK: - Input</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">DemoInput</span>: <span class="title">ViewToViewModelInput</span> </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> refresh: <span class="type">Driver</span>&lt;()&gt;</span><br><span class="line">    <span class="keyword">init</span>(view: <span class="type">MVVMView</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> view = view <span class="keyword">as</span>! <span class="type">DemoMVVMView</span></span><br><span class="line">        <span class="keyword">self</span>.refresh = view.mButton.rx.tap.asDriver()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，我们在<code>DemoMVVMView</code>中添加了一个按钮，按钮的点击事件作为从<code>View</code>层传入<code>ViewModel</code>层的事件数据流，所以在<code>DemoInput</code>中我们定义了按钮点击的刷新流。<br>在属于<code>DemoMVVMView</code>的<code>Reactive</code>分类中，里面的观察者代表<code>DemoMVVMView</code>接收到<code>ViewModel</code>层传来的事件数据流时进行的驱动操作，为更新按钮的标题和切换按钮的背景色。<br>我们重写<code>inputType</code>属性以及<code>rxDrive</code>方法，在<code>inputType</code>属性中返回<code>DemoInput</code>类型，在<code>rxDrive</code>方法中将<code>ViewModel</code>传过来的<code>Output</code>驱动视图的刷新。</p>
+<h3 id="ViewModel-层"><a href="#ViewModel-层" class="headerlink" title="ViewModel 层"></a>ViewModel 层</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MARK: - ViewModel</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DemoMVVMViewModel</span>: <span class="title">MVVMViewModel</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">var</span> outputType: <span class="type">ViewModelToViewOutput</span>.<span class="type">Type</span>? &#123; <span class="type">DemoOutput</span>.<span class="keyword">self</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">DemoOutput</span>: <span class="title">ViewModelToViewOutput</span> </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> color: <span class="type">Driver</span>&lt;<span class="type">UIColor</span>&gt;</span><br><span class="line">    <span class="keyword">let</span> title: <span class="type">Driver</span>&lt;<span class="type">String</span>&gt;</span><br><span class="line">    <span class="keyword">init</span>(viewModel: <span class="type">MVVMViewModel</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> viewModel = viewModel <span class="keyword">as</span>! <span class="type">DemoMVVMViewModel</span></span><br><span class="line">        <span class="keyword">let</span> input = viewModel.input <span class="keyword">as</span>! <span class="type">DemoInput</span></span><br><span class="line">        <span class="keyword">self</span>.color = input.refresh.<span class="built_in">map</span> &#123; <span class="number">_</span> <span class="keyword">in</span> <span class="type">UIColor</span>.orange &#125;</span><br><span class="line">        <span class="keyword">self</span>.title = input.refresh.<span class="built_in">map</span> &#123; <span class="number">_</span> <span class="keyword">in</span> <span class="string">"数据已刷新"</span> &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>ViewModel</code>层相对较为简单，因为现在还未涉及网络请求操作或数据库操作，也没有进行某些业务逻辑的判断处理，所以<code>DemoMVVMViewModel</code>中只有一个重写的<code>OutputType</code>属性。在实际开发中，<code>MVVMViewModel</code>中会持有某些临时的状态变量，或网络、本地数据库框架实例。<br>对于流的转换，发生在<code>Output</code>的初始化方法中，可能有人会疑惑: “流的转换不是发生在<code>MVVMViewModel</code>中的吗，为什么会在<code>Output</code>的初始化方法中？” 在前面我说到，流的转换是在<code>ViewModel</code>层发生的，而<code>ViewModel</code>层是包含<code>Output</code>跟<code>MVVMViewModel</code>的，并不是说<code>MVVMViewModel</code>名字的关系所以<code>MVVMViewModel</code>就代表整个<code>ViewModel</code>层。在此架构中，<code>MVVMViewModel</code>主要是用于持有某些状态变量、某些服务模块和提供<code>Output</code>类型的。</p>
+<h3 id="MVVMUnitCase"><a href="#MVVMUnitCase" class="headerlink" title="MVVMUnitCase"></a>MVVMUnitCase</h3><p>不要忘记在<code>UnitCase</code>中对刚构建好的<code>MVVM</code>进行配置:<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">MVVMUnitCase</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">let</span> demo = <span class="type">MVVMUnitCase</span>(rawValue: [<span class="type">DemoMVVMView</span>.<span class="keyword">self</span>, <span class="type">DemoMVVMViewModel</span>.<span class="keyword">self</span>])</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在项目开发中，我们就可以在任意<code>MVVMView</code>中进行向”Demo”页面的跳转了:<br><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">_</span> = <span class="keyword">self</span>.route(.push(.demo))</span><br></pre></td></tr></table></figure></p>
+<p>上面展示的架构使用Demo较为简单，在下一篇文章中，我会结合封装完成后的网络请求框架，对<code>MVVMR</code>架构进行一此较为大型的实战。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这篇文章详细说明了我在项目中搭建出来的<code>MVVMR</code>架构其思想、基本原理以及初步实现，为<strong>基于RxSwift的MVVMR架构</strong>系列文章的第一篇。若大家发现文章中的内容存在问题或者有更好的建议，欢迎向我反馈！<br>在下一篇文章中，我会对架构中的某些细节进行实现与封装，如基于<code>Moya + Argo</code>的网络框架封装，并在后面使用架构进行实战使用。</p>
+
+    
+  </div>
+</article>
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal-one" aria-hidden="true">
+  <a href="#close" class="cover" aria-hidden="true"></a>
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <a href="#close" class="btn-close" aria-hidden="true">关闭</a>
+    </div>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/category/"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/project/"
+              target="_self"
+              >
+              项目
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+  <section class="duoshuo-comments">
+    <!-- 多说评论框 start -->
+    <div class="ds-thread" data-thread-key="" data-title="基于RxSwift的MVVMR架构(一)思想、基本原理及初步实现" data-url="http://yoursite.com/2017/02/27/基于RxSwift的MVVMR架构(一)思想、基本原理及初步实现/index.html"></div>
+    <!-- 多说评论框 end -->
+  </section>
+
+
+
+
+  <script type="text/javascript">
+  var duoshuoQuery = {short_name:"tangentw"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0]
+     || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+  </script>
+
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?398', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
